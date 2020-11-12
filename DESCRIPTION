@@ -1,18 +1,20 @@
 Package: spryngr
-Title: What the Package Does (One Line, Title Case)
+Title: A Toolset for Data Generated within Spryng.io Sensors
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Eliot",
+           family = "Dixon",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "eliot.dixon@kdv-decisions.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-imports: ggplot2, dplyr, xlsx, stringr, tools
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+Description: This package provides a set of functions to edit, manage, and visualize data generated within Spryng.io sensors.
+imports: 
+	ggplot2 >= 3.3.0, 
+	dplyr >=  0.8.5, 
+	xlsx >= 0.6.3,
+	stringr >= 1.4.0
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
-
