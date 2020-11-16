@@ -285,17 +285,14 @@ getQNames <- function(qClassesDf, questions){
   return(qNames)
 }
 
+
 generateLabels <- function(qClassesDf, questions, answers){
   qNames <- getQNames(qClassesDf, questions)
   labels <- list()
-
-  #print(answers)
-
   for(i in 1:NROW(qClassesDf)){
-    #print(qClassesDf[i,]$qClass)
     labels[[i]] <-  switch(qClassesDf[i,]$qClass,
-                           "Triangle"=c(qNames[i],triangleLabel( questions[qClassesDf[i,]$startColIndex:
-                                                                             qClassesDf[i,]$startColIndex+2])),
+                           "Triangle"=c(qNames[i],triangleLabel(questions[qClassesDf[i,]$startColIndex:
+                                                                             (qClassesDf[i,]$startColIndex+2)])),
 
                            "Slider"=c(qNames[i],"-X Label","+X Label"),
 
@@ -320,10 +317,7 @@ return(labels)
 
 
 marbleLabel <- function(marble){
- # marble <- questions[indices[1]:indices[2]]
-  #print(marble)
   marbleLabs <- c()
-  #print(marble)
   for(i in 1:length(marble)){
     if(i%%2 == 0){
       thisLab <- unlist(strsplit(marble[i], " - "))[2] %>%
@@ -338,9 +332,6 @@ marbleLabel <- function(marble){
 }
 
 triangleLabel <- function(triangle){
- # triangle <- questions[indices[1]:(indices[1]+2)]
-
-
   triLabels <- lapply(triangle, function(x){
     spltTriangle <- trimws(x, which=c("both")) %>%
       strsplit(" - ") %>%
