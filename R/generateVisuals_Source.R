@@ -74,7 +74,6 @@ prepTernaries <- function(ternaries){
                          title=ternary@title, data=ternary@data[j]/100)
       preppedTernaries <- append(preppedTernaries, thisPrepped)
     }
-    #print(ternary)
   }
   return(preppedTernaries)
 }
