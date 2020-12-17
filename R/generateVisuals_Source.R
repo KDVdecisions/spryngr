@@ -185,6 +185,43 @@ getPlotDataCheckbox <- function(.dyad, .factor){
 
 }
 
+savePlots <- function(plots, type, path){
+
+  #get maximum id number in relevant output folder
+  nPlots <- getMaxPlotId(type, path)
+
+  #write plots out to folder
+  for(i in 1:length(plots)){
+    ggsave(paste0(path, "/", type, "_", (nPlots + i), ".png"), plots[[i]])
+  }
+}
+
+
+getMaxPlotId <- function(type, path){
+  plotFiles <- list.files(path)
+
+  nameInds <- lapply(plotFiles, function(x){
+    grepl(type, x, fixed=TRUE)
+  }) %>% unlist()
+
+  plotFiles <- plotFiles[nameInds]
+
+  nPlots <- 0
+
+  #get maximum plot id number in relevant output folder
+  if(length(plotFiles) >= 1){
+    nPlots <- sapply(plotFiles, function(x){
+      x <- str_remove(x, ".png")
+      num <- str_split(x, "_")[[1]][2] %>%
+        as.integer()
+      return(num)
+    }) %>%
+      max()
+  }
+
+  return(nPlots)
+}
+
 
 
 

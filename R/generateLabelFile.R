@@ -13,29 +13,35 @@
 #' @export
 #'
 generateLabelFile <- function(inputFile, threshold=65){
-  rawData <- read.csv(inputFile, check.names=F, na.strings = c("NA",""))
-  answers <- rawData[15:length(rawData)]
-  questions <- names(answers)[1:(length(names(answers))-1)]
+  if(!getWritePermission()){
+    cat("Exiting...\n")
 
-  #Obtain begining and ending column indices of each question
-  qInds <- getQIndices(threshold, questions, answers)
+  }else{
+    rawData <- read.csv(inputFile, check.names=F, na.strings = c("NA",""))
+    answers <- rawData[15:length(rawData)]
+    questions <- names(answers)[1:(length(names(answers))-1)]
 
-  #Classify each question
-  qClasses <- classifyQuestions(questions, answers, qInds)
+    #Obtain begining and ending column indices of each question
+    qInds <- getQIndices(threshold, questions, answers)
 
-  #If this set includes marbles, ensure all sub-marbles are within their respective question groups
-  if("Marble" %in% qClasses){
-    qInds <- gatherMarbles(qInds, qClasses, questions)
-    qClasses <- classifyQuestions(questions,answers, qInds)
+    #Classify each question
+    qClasses <- classifyQuestions(questions, answers, qInds)
+
+    #If this set includes marbles, ensure all sub-marbles are within their respective question groups
+    if("Marble" %in% qClasses){
+      qInds <- gatherMarbles(qInds, qClasses, questions)
+      qClasses <- classifyQuestions(questions,answers, qInds)
+    }
+
+    qClassesDf <- data.frame(startColIndex = sapply(qInds, function(x) return(x[1])),
+                             endColIndex = sapply(qInds, function(x) return(x[2])),
+                             qClass = unlist(qClasses)
+    )
+
+    answers <- naToLogical(qClassesDf, questions, answers)
+
+
+
+    generateOutput(inputFile, qClassesDf, questions, answers)
   }
-
-  qClassesDf <- data.frame(startColIndex = sapply(qInds, function(x) return(x[1])),
-                           endColIndex = sapply(qInds, function(x) return(x[2])),
-                           qClass = unlist(qClasses)
-  )
-
-  answers <- naToLogical(qClassesDf, questions, answers)
-
-
-  generateOutput(inputFile, qClassesDf, questions, answers)
 }

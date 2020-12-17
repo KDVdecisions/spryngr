@@ -19,6 +19,7 @@ setClass("Question", representation(type="character", title="character", labels=
 #' @export
 #'
 generateQuestionObjects <- function(outputFolder){
+  setOutPath(outputFolder)
   labelFile <- paste0(outputFolder, "/", "Question_Labels.xlsx")
   pathFile <- paste0(outputFolder, "/", "Data_Path.txt")
   visualizationFolder <- paste0(outputFolder, "/", "Visualizations")
@@ -85,7 +86,7 @@ generateQuestionObjects <- function(outputFolder){
 #' @return a list of ggplot objects
 #' @export
 #'
-plotAllMarbles <- function(marbles, factors){
+plotAllMarbles <- function(marbles, factors, save=FALSE){
   marbles <- prepMarbles(marbles)
   plots <- list()
   i <- 1
@@ -105,6 +106,10 @@ plotAllMarbles <- function(marbles, factors){
       i = i+1
     }
   }
+  if(save){
+    savePlots(plots, "marble", paste0(pkgGlobals$outPath, "/Visualizations/Marbles"))
+  }
+
   return(plots)
 }
 
@@ -119,7 +124,7 @@ plotAllMarbles <- function(marbles, factors){
 #' @return a list of ggplot objects
 #' @export
 #'
-plotAllDyads <- function(dyads, factors){
+plotAllDyads <- function(dyads, factors, save=FALSE){
   plots <- list()
   i = 1
   for(dyad in dyads){
@@ -133,6 +138,11 @@ plotAllDyads <- function(dyads, factors){
       i = i+1
     }
   }
+
+  if(save){
+    savePlots(plots, "slider", paste0(pkgGlobals$outPath, "/Visualizations/Sliders"))
+  }
+
   return(plots)
 }
 
@@ -145,7 +155,7 @@ plotAllDyads <- function(dyads, factors){
 #' @return a list of ggplot objects
 #' @export
 #'
-plotAllTernaries <- function(ternaries, factors){
+plotAllTernaries <- function(ternaries, factors, save=FALSE){
   ternaries <- prepTernaries(ternaries)
   i <- 1
   plots <- c()
@@ -160,6 +170,11 @@ plotAllTernaries <- function(ternaries, factors){
       i = i + 1
     }
   }
+
+  if(save){
+    savePlots(plots, "triangle", paste0(pkgGlobals$outPath, "/Visualizations/Triangles"))
+  }
+
   return(plots)
 }
 
@@ -318,4 +333,11 @@ plotTernary <- function(ternary, factor, varIndex, title=NULL,
   }
   return(plot)
 }
+
+
+
+
+
+
+
 
