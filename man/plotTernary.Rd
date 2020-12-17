@@ -4,9 +4,19 @@
 \alias{plotTernary}
 \title{Plot single triangle vs single factor with specification of side, labels, and titles}
 \usage{
-plotTernary(ternary, factor, varIndex, title = NULL, ylab = NULL, xlab = NULL)
+plotTernary(
+  ternary,
+  factor,
+  varIndex,
+  title = NULL,
+  ylab = NULL,
+  xlab = NULL,
+  save = FALSE
+)
 }
 \arguments{
+\item{save}{Logical indicating whether to save produced plots in output folder}
+
 \item{ternary:}{Question object of type Triangle}
 
 \item{factor:}{Question object of type MCQ or MCQ_Checkbox Question object}

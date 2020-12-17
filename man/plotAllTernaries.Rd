@@ -4,12 +4,14 @@
 \alias{plotAllTernaries}
 \title{Generate a violin plot for each combination of Triangle and MCQ Question object}
 \usage{
-plotAllTernaries(ternaries, factors)
+plotAllTernaries(ternaries, factors, save = FALSE)
 }
 \arguments{
 \item{ternaries}{List of Question objects of type Triangle}
 
 \item{factors}{List of Question objects of type MCQ or MCQ_Checkbox}
+
+\item{save}{Logical indicating whether to save produced plots in output folder}
 }
 \value{
 a list of ggplot objects

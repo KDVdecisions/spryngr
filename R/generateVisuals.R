@@ -82,6 +82,7 @@ generateQuestionObjects <- function(outputFolder){
 #'
 #' @param marbles List of Question objects of type Marble
 #' @param factors List of Question objects of type MCQ or MCQ_Checkbox
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a list of ggplot objects
 #' @export
@@ -120,6 +121,7 @@ plotAllMarbles <- function(marbles, factors, save=FALSE){
 #'
 #' @param dyads A list of Question objects of type Slider
 #' @param factors a list of Question Objects of type MCQ or MCQ_Checkbox
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a list of ggplot objects
 #' @export
@@ -151,6 +153,7 @@ plotAllDyads <- function(dyads, factors, save=FALSE){
 #'
 #' @param ternaries List of Question objects of type Triangle
 #' @param factors List of Question objects of type MCQ or MCQ_Checkbox
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a list of ggplot objects
 #' @export
@@ -188,16 +191,18 @@ plotAllTernaries <- function(ternaries, factors, save=FALSE){
 
 #' Plot single dyad vs single factor with specification of labels and tites
 #'
-#'@param dyad: Question object of type Slider
-#'@param factor: Question object of type MCQ or MCQ_Checkbox
-#'@param title: String containing the title for the generated plot (optional)
-#'@param ylab: String containing the Y label for the generated plot (optional)
-#'@param xlab: Vector containing 2 Strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param dyad: Question object of type Slider
+#' @param factor: Question object of type MCQ or MCQ_Checkbox
+#' @param title: String containing the title for the generated plot (optional)
+#' @param ylab: String containing the Y label for the generated plot (optional)
+#' @param xlab: Vector containing 2 Strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a ggplot object
 #' @export
 #'
-plotDyad <- function(dyad, factor, title=NULL, ylab=NULL, xlab=NULL){
+plotDyad <- function(dyad, factor, title=NULL, ylab=NULL, xlab=NULL,
+                     save=FALSE){
   plot <- NULL
 
   if(!is.null(title)){
@@ -215,6 +220,11 @@ plotDyad <- function(dyad, factor, title=NULL, ylab=NULL, xlab=NULL){
   }else{
     plot <- getPlotDataRadio(dyad, factor)
   }
+
+  if(save){
+    savePlots(plot, "slider", paste0(pkgGlobals$outPath, "/Visualizations/Sliders"))
+  }
+
   return(plot)
 }
 
@@ -223,19 +233,20 @@ plotDyad <- function(dyad, factor, title=NULL, ylab=NULL, xlab=NULL){
 #
 #' Plot single marble vs single factor with specification of sub-marble-index, axis, labels, and titles
 #'
-#'@param marble: Question object of type Marble
-#'@param factor: Question object of type MCQ or MCQ_Checkbox
-#'@param varIndex: integer indicating the index of the Marble to be used
-#'@param axis: integer equal to 1 or 2 dictating x or y axis respectively
-#'@param title: String containing the title for the generated plot (optional)
-#'@param ylab: String containing the Y label for the generated plot (optional)
-#'@param xlab: Vector containing 2 Strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param marble: Question object of type Marble
+#' @param factor: Question object of type MCQ or MCQ_Checkbox
+#' @param varIndex: integer indicating the index of the Marble to be used
+#' @param axis: integer equal to 1 or 2 dictating x or y axis respectively
+#' @param title: String containing the title for the generated plot (optional)
+#' @param ylab: String containing the Y label for the generated plot (optional)
+#' @param xlab: Vector containing 2 Strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a ggplot object
 #' @export
 #'
-plotMarble <- function(marble, factor, varIndex, axis,
-                       title=NULL, ylab=NULL, xlab=NULL){
+plotMarble <- function(marble, factor, varIndex, axis, title=NULL,
+                       ylab=NULL, xlab=NULL, save=FALSE){
   plot <- NULL
   if(varIndex > NCOL(marble@data)){
     warning("marble index out of bounds")
@@ -285,6 +296,11 @@ plotMarble <- function(marble, factor, varIndex, axis,
   }else {
     plot <- getPlotDataRadio(marble, factor)
   }
+
+  if(save){
+    savePlots(plot, "marble", paste0(pkgGlobals$outPath, "/Visualizations/Marbles"))
+  }
+
   return(plot)
 
 }
@@ -293,18 +309,19 @@ plotMarble <- function(marble, factor, varIndex, axis,
 
 #' Plot single triangle vs single factor with specification of side, labels, and titles
 #'
-#'@param ternary: Question object of type Triangle
-#'@param factor: Question object of type MCQ or MCQ_Checkbox Question object
-#'@param varIndex: int 1-3 indicating which side of the Triangle to use (1=left, 2=bottom, 3=right)
-#'@param title: String containing the title for the generated plot (optional)
-#'@param ylab: String containing the Y label for the generated plot (optional)
-#'@param xlab: Vector containing 2 strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param ternary: Question object of type Triangle
+#' @param factor: Question object of type MCQ or MCQ_Checkbox Question object
+#' @param varIndex: int 1-3 indicating which side of the Triangle to use (1=left, 2=bottom, 3=right)
+#' @param title: String containing the title for the generated plot (optional)
+#' @param ylab: String containing the Y label for the generated plot (optional)
+#' @param xlab: Vector containing 2 strings to label the x axis in the negative and positive direction respectively (optional)
+#' @param save Logical indicating whether to save produced plots in output folder
 #'
 #' @return a ggplot object
 #' @export
 #'
 plotTernary <- function(ternary, factor, varIndex, title=NULL,
-                        ylab=NULL, xlab=NULL){
+                        ylab=NULL, xlab=NULL, save=FALSE){
   plot <- NULL
   if(varIndex > 3){
     print("varIndex should be 1-3")
@@ -331,12 +348,75 @@ plotTernary <- function(ternary, factor, varIndex, title=NULL,
   }else {
     plot <- getPlotDataRadio(ternary, factor)
   }
+
+  if(save){
+    savePlots(plot, "triangle", paste0(pkgGlobals$outPath, "/Visualizations/Triangles"))
+  }
+
   return(plot)
 }
 
 
 
+#--------------------------------------------------Write Plot Function-------------------------------
 
+#' Function which saves one or more ggplot objects
+#'
+#' @param plots a ggplot object or list of ggplot objects
+#' @param path a string containing a location to save the plots.  If left blank a location may be selected via a windows file explorer dialogue box
+#' @param names a vector of strings the same length as the list of plots.  If left blank random names will be generated
+#'
+#' @return
+#' @export
+#'
+writePlots <- function(plots, path=NULL, names=NULL){
+  if(is.null(path)){
+    path <- choose.dir()
+  }
+
+  if(!is.null(names)){
+    filesAtPath <- list.files(path) %>%
+      str_remove(".png")
+    overlap <- names %in% filesAtPath
+
+    if(TRUE %in% overlap){
+      warning(sprintf(".png files with the name(s): %s already exist in this location",
+                      paste(names[overlap], collapse=", ")))
+      return()
+    }
+  }
+
+  #if plots = a single ggplot object
+  if(class(plots)[1] == "gg"){
+    if(is.null(names)){
+      names <- paste0("spryngr_plot_", randString())
+    }
+    else if(length(names) != 1){
+      warning("names vector must be same length as plots argument")
+      return()
+    }
+    ggsave(paste0(path, "/", names, ".png"), plots)
+  }
+
+  #if plots = a list of ggplot objects
+  else if(class(plots) == "list"){
+    if(is.null(names)){
+      names <- replicate(length(plots), randString()) %>%
+      lapply(function(x){
+        paste0("spryngr_plot_", x)
+      }) %>%
+        unlist()
+    }
+    else if(length(names) != length(plots)){
+      warning("names vector must be same length as plots argument")
+      return()
+    }
+    for(i in 1:length(plots)){
+      ggsave(paste0(path, "/", names[i], ".png"), plots[[i]])
+    }
+  }
+
+}
 
 
 

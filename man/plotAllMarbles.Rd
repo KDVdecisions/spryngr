@@ -4,12 +4,14 @@
 \alias{plotAllMarbles}
 \title{Generate a violin plot for each combination of Marble and MCQ Question object}
 \usage{
-plotAllMarbles(marbles, factors)
+plotAllMarbles(marbles, factors, save = FALSE)
 }
 \arguments{
 \item{marbles}{List of Question objects of type Marble}
 
 \item{factors}{List of Question objects of type MCQ or MCQ_Checkbox}
+
+\item{save}{Logical indicating whether to save produced plots in output folder}
 }
 \value{
 a list of ggplot objects

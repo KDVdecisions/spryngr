@@ -6,9 +6,11 @@
 Any labels left blank will be gathered from the generated labels document
 Plot single dyad vs single factor with specification of labels and tites}
 \usage{
-plotDyad(dyad, factor, title = NULL, ylab = NULL, xlab = NULL)
+plotDyad(dyad, factor, title = NULL, ylab = NULL, xlab = NULL, save = FALSE)
 }
 \arguments{
+\item{save}{Logical indicating whether to save produced plots in output folder}
+
 \item{dyad:}{Question object of type Slider}
 
 \item{factor:}{Question object of type MCQ or MCQ_Checkbox}

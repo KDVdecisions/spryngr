@@ -8,9 +8,9 @@ For checkbox MCQs.}
 getPlotDataCheckbox(.dyad, .factor)
 }
 \arguments{
-\item{.factor}{question object of type MCQ_Checkbox}
+\item{.dyad}{question object of type slider}
 
-\item{.dyad:}{question object of type slider}
+\item{.factor}{question object of type MCQ_Checkbox}
 }
 \description{
 helper function for plotAll function family. contains code to transform data in preparation for violin plots

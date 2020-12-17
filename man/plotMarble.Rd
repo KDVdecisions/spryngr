@@ -2,8 +2,7 @@
 % Please edit documentation in R/generateVisuals.R
 \name{plotMarble}
 \alias{plotMarble}
-\title{Any labels left blank will be gathered from the generated labels document
-Plot single marble vs single factor with specification of sub-marble-index, axis, labels, and titles}
+\title{Plot single marble vs single factor with specification of sub-marble-index, axis, labels, and titles}
 \usage{
 plotMarble(
   marble,
@@ -12,10 +11,13 @@ plotMarble(
   axis,
   title = NULL,
   ylab = NULL,
-  xlab = NULL
+  xlab = NULL,
+  save = FALSE
 )
 }
 \arguments{
+\item{save}{Logical indicating whether to save produced plots in output folder}
+
 \item{marble:}{Question object of type Marble}
 
 \item{factor:}{Question object of type MCQ or MCQ_Checkbox}
@@ -34,6 +36,5 @@ plotMarble(
 a ggplot object
 }
 \description{
-Any labels left blank will be gathered from the generated labels document
 Plot single marble vs single factor with specification of sub-marble-index, axis, labels, and titles
 }

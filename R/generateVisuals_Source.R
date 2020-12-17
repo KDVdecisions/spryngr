@@ -161,7 +161,7 @@ plotQuestion <- function(data, .dyad, .factor, plotInfo=NULL){
 
 #'helper function for plotAll function family. contains code to transform data in preparation for violin plots
 #'For checkbox MCQs.
-#'@param .dyad: question object of type slider
+#'@param .dyad question object of type slider
 #'@param .factor question object of type MCQ_Checkbox
 getPlotDataCheckbox <- function(.dyad, .factor){
   .dyadData <- .dyad@data[1]
@@ -185,18 +185,39 @@ getPlotDataCheckbox <- function(.dyad, .factor){
 
 }
 
+
+#'helper function for plot function family. Function writes ggplots out to output folder
+#'
+#'@param plots: Either a ggplot or list of ggplot objects
+#'@param type: A string idicating which type of question is represented in the given plots
+#'@param path: Location of the output/visualizations/<plot type> folder
+#'
 savePlots <- function(plots, type, path){
 
   #get maximum id number in relevant output folder
   nPlots <- getMaxPlotId(type, path)
+  if(class(plots)[1] == "gg"){
+    ggsave(paste0(path, "/", type, "_", (nPlots + 1), ".png"), plots)
 
-  #write plots out to folder
-  for(i in 1:length(plots)){
-    ggsave(paste0(path, "/", type, "_", (nPlots + i), ".png"), plots[[i]])
+  }
+  else if(class(plots) == "list"){
+    #write plots out to folder
+    for(i in 1:length(plots)){
+      ggsave(paste0(path, "/", type, "_", (nPlots + i), ".png"), plots[[i]])
+    }
+  }
+  else{
+    warning("Error in savePlots(): Unknown Data type provided to 'plots' param")
   }
 }
 
 
+
+#'helper function for savePlots() function. Obtains greatest ID number of .png images in a given plot folder
+#'
+#'@param type: A string idicating which type of question is represented in the given plots
+#'@param path: Location of the output/visualizations/<plot type> folder
+#'
 getMaxPlotId <- function(type, path){
   plotFiles <- list.files(path)
 
@@ -221,6 +242,17 @@ getMaxPlotId <- function(type, path){
 
   return(nPlots)
 }
+
+#' helper function for writePlots() function.  Generates random selection of
+#' consonants and numbers of length 5 for file names
+#'
+randString <- function(){
+  chars <- c("1","2","3","4","5","6","7","8","9",
+             letters[!letters %in% c("a","e","i","o","u")])
+  return(paste(sample(chars, 9, replace=TRUE), collapse=""))
+
+}
+
 
 
 

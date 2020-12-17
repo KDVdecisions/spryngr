@@ -4,12 +4,14 @@
 \alias{plotAllDyads}
 \title{Generate a violin plot for each combination of Slider and MCQ Question object}
 \usage{
-plotAllDyads(dyads, factors)
+plotAllDyads(dyads, factors, save = FALSE)
 }
 \arguments{
 \item{dyads}{A list of Question objects of type Slider}
 
 \item{factors}{a list of Question Objects of type MCQ or MCQ_Checkbox}
+
+\item{save}{Logical indicating whether to save produced plots in output folder}
 }
 \value{
 a list of ggplot objects
