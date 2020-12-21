@@ -4,7 +4,7 @@
 \alias{writePlots}
 \title{Function which saves one or more ggplot objects}
 \usage{
-writePlots(plots, path = NULL, names = NULL)
+writePlots(plots, path = NULL, names = NULL, width = NA, height = NA)
 }
 \arguments{
 \item{plots}{a ggplot object or list of ggplot objects}

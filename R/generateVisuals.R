@@ -369,7 +369,7 @@ plotTernary <- function(ternary, factor, varIndex, title=NULL,
 #' @return
 #' @export
 #'
-writePlots <- function(plots, path=NULL, names=NULL){
+writePlots <- function(plots, path=NULL, names=NULL, width=NA, height=NA){
   if(is.null(path)){
     path <- choose.dir()
   }
@@ -380,7 +380,7 @@ writePlots <- function(plots, path=NULL, names=NULL){
     overlap <- names %in% filesAtPath
 
     if(TRUE %in% overlap){
-      warning(sprintf(".png files with the name(s): %s already exist in this location",
+      warning(sprintf("Files with the name(s): %s already exist in this location",
                       paste(names[overlap], collapse=", ")))
       return()
     }
@@ -395,7 +395,7 @@ writePlots <- function(plots, path=NULL, names=NULL){
       warning("names vector must be same length as plots argument")
       return()
     }
-    ggsave(paste0(path, "/", names, ".png"), plots)
+    ggsave(paste0(path, "/", names, ".png"), plots, width=width, height=heigth)
   }
 
   #if plots = a list of ggplot objects
@@ -412,7 +412,7 @@ writePlots <- function(plots, path=NULL, names=NULL){
       return()
     }
     for(i in 1:length(plots)){
-      ggsave(paste0(path, "/", names[i], ".png"), plots[[i]])
+      ggsave(paste0(path, "/", names[i], ".png"), plots[[i]], width=width, height=height)
     }
   }
 
