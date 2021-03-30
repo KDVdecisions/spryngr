@@ -54,6 +54,11 @@ generateQuestionObjects <- function(outputFolder){
       thisQOb <- new("Question", type=type, labels=labels, title=title,
                      data=data.frame(answers[thisQuestion$startColIndex:thisQuestion$endColIndex],
                                      check.names=FALSE, fix.empty.names=FALSE))
+      if(type == "Slider"){
+        if(thisQuestion$lowerLimit != 0 | thisQuestion$upperLimit != 1){
+          thisQOb <- normalizeSlider(thisQOb, thisQuestion$lowerLimit, thisQuestion$upperLimit)
+        }
+      }
       qObjects[[type]] <- append(qObjects[[type]], thisQOb)
 
     }

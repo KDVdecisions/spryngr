@@ -34,6 +34,23 @@ collapseMcq <- function(mcq){
   return(mcq)
 }
 
+#'scales slider data to fall between a specified lower and upper limit
+#'
+#'@param slider: question object of type slider
+#'@param lower: lower scale limit
+#'@param upper: upper scale limit
+#'
+normalizeSlider <- function(slider, lower, upper){
+  scaledData <- c()
+  for(thisData in slider@data[,1]){
+    thisScaled <- (upper - lower) * thisData + lower
+    scaledData <- c(scaledData, thisScaled)
+  }
+  slider@data[,1] <- scaledData
+
+  return(slider)
+}
+
 #'Logical function which determines if a question is represented by logical columns or not
 #'@param mcq: question object of type MCQ
 #' essential logic is: if all columns (excluding NA and/or Other column if present) only contain the "1" character

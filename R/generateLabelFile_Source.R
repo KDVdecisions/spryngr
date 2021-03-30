@@ -499,6 +499,12 @@ writeLabelFile <- function(outputName, qClassesDf, questions, answers){
       })
 
       thisType$labels <- labels
+
+      if(qType == "Slider"){
+        thisType$lowerLimit <- rep(0, NROW(thisType))
+        thisType$upperLimit <- rep(1, NROW(thisType))
+      }
+
       write.xlsx(thisType, labelFile,sheetName=qType,
                  row.names=FALSE, append=TRUE)
     }
