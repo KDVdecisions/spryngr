@@ -368,6 +368,7 @@ getQIndices <- function(threshold, questions, answers){
 
   #' iterates through and creates list that holds the beginning and end index of each question
   for(i in 2:length(questions)){
+
     curQ <- questions[i-1] %>%
       strsplit(" - ")
     curQ <- unlist(curQ)[1]
@@ -375,6 +376,7 @@ getQIndices <- function(threshold, questions, answers){
     nextQ <- questions[i] %>%
       strsplit(" - ")
     nextQ <- unlist(nextQ)[1]
+
     similarity <- compareChars(curQ,nextQ)
     if(similarity < threshold){   #if next string isn't part of current question
       curInd <- c(curInd, i-1)

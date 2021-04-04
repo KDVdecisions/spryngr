@@ -27,11 +27,11 @@ generateLabelFile <- function(inputFile, threshold=65){
     #Classify each question
     qClasses <- classifyQuestions(questions, answers, qInds)
 
-    #If this set includes marbles, ensure all sub-marbles are within their respective question groups
-    if("Marble" %in% qClasses){
-      qInds <- gatherMarbles(qInds, qClasses, questions)
-      qClasses <- classifyQuestions(questions,answers, qInds)
-    }
+    # #If this set includes marbles, ensure all sub-marbles are within their respective question groups
+    # if("Marble" %in% qClasses){
+    #   qInds <- gatherMarbles(qInds, qClasses, questions)
+    #   qClasses <- classifyQuestions(questions,answers, qInds)
+    # }
 
     qClassesDf <- data.frame(startColIndex = sapply(qInds, function(x) return(x[1])),
                              endColIndex = sapply(qInds, function(x) return(x[2])),
