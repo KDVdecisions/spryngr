@@ -1,7 +1,7 @@
 #'Group question data columns into single questions and classify as discrete or continuous
 #'
 #'@param inputFile: string containing path to spryng output file in csv
-parseCollection <- function(inputFile, outlineFile = NULL){
+parseCollection <- function(inputFile, outline = NULL){
   if(!getWritePermission()){
     cat("Exiting...\n")
 
@@ -12,22 +12,27 @@ parseCollection <- function(inputFile, outlineFile = NULL){
     qTitles <- names(qData)[1:(length(names(qData)))]
 
     #separate columns into groups(questions hereafter) for each question
-    qInds <- getQIndices(qTitles, qData)
+    qInds <- getQIndices(qData, qTitles)
 
-    #classify groups of questions as continuous or discrete
-    classifiedInds <- classifyQuestions(qData, qTitles, qInds)
-    contInds <- classifiedInds[[1]]
-    discInds <- classifiedInds[[2]]
 
-    buildContinuous(qInds, qData)
 
-   # writeCollectionData(inputFile)
+    if(is.null(outline)){
+      outline <- buildOutline(qData, qInds, qTitles)
+    }
+    return(outline)
+    #build outline table
+
+    #build continuous table
+
+    #build discrete table
+
+    #write
   }
 
 }
 
 #helper, contains code to generate question begining and end indices
-getQIndices <- function(qTitles, qData){
+getQIndices <- function(qData, qTitles){
 
   qInds <- list()
   curInd <- c(1)
@@ -88,86 +93,6 @@ compareChars <- function(str1,str2){
   return(proportionShared)
 }
 
-
-#' Classifies questions as either discrete or continuous
-#'
-#' @param qData: Survey data
-#' @param qTitles: Survey data headers
-#' @param qInds: Question column beginning and ending indexes
-#'
-classifyQuestions <- function(qData, qTitles, qInds){
-  continuous <- list()
-  discrete <- list()
-
-  for(qInd in qInds){
-    firstCol <- qData[qInd[1]]
-
-    if(is.numeric(firstCol[,1])){
-
-      if(is.integer(firstCol[,1])){
-          discrete <- append(discrete, list(qInd))
-      } else{
-          continuous <- append(continuous, list(qInd))
-          if(isMarble(qInd, qTitles)){
-            discrete <- append(discrete, list(qInd))
-          }
-      }
-
-    }else if(is.character(firstCol[,1])){
-      discrete <- append(discrete, list(qInd))
-    } else{
-      print("Something unexpected happened on: ")
-      print(paste0("      ", qInd))
-    }
-  }
-  return(list(continuous, discrete))
-}
-
-#' Function returns logical based on whether a question is of type Marble
-#'
-#' @param qInds: a vector containing the beginning and ending index of a question
-#' @param qTitles: a vector of question titles
-#'
-#' TODO: simplify, probably don't need qInds, just qTitles.
-isMarble <- function(qInds, qTitles){
-  if(qInds[2] > qInds[1]){
-
-    #split first question title over ' - ' and get last element
-    firstCol <- qTitles[qInds[1]] %>%
-      str_split(" - ") %>%
-      unlist() %>%
-      tail(n = 1)
-
-    #split second question title over ' - ' and get last element
-    secondCol <- qTitles[qInds[2]] %>%
-      str_split(" - ") %>%
-      unlist() %>%
-      tail(n = 1)
-
-    #if first and second question titles end with X and Y, return true
-    if(firstCol == "X" && secondCol == "Y"){
-      return(TRUE)
-    } else{
-      return(FALSE)
-    }
-
-  } else{
-    return(FALSE)
-  }
-}
-
-buildOutline <- function(qInds, qData){
-
-}
-
-buildContinuous <- function(qInds, qData){
-  contData <- list()
-  for(i in 1:length(qInds)){
-    #print(qInds[[i]][1])
-    contData[[i]] <- qData[qInds[[i]][1]:qInds[[i]][2]]
-  }
-  print(contData)
-}
 
 
 
