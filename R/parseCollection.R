@@ -5,7 +5,7 @@ parseCollection <- function(inputFile, outline = NULL){
   if(!getWritePermission()){
     cat("Exiting...\n")
 
-  }else{
+  } else{
     rawData <- read.csv(inputFile, check.names=F, na.strings = c("NA",""))
     #clean collection data
     qData <- rawData[15:(length(rawData) - 1)]
@@ -19,6 +19,7 @@ parseCollection <- function(inputFile, outline = NULL){
     if(is.null(outline)){
       outline <- buildOutline(qData, qInds, qTitles)
     }
+    buildContinuous(qData, outline, qTitles)
     return(outline)
     #build outline table
 

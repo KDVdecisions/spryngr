@@ -21,7 +21,6 @@ classifyQuestions <- function(qData, qInds, qTitles){
         } else if (isTernary(qInd, qTitles)){
           qClass <- c(qClass, "ternary")
         } else{
-          isSlider(qInd,qTitles)
           qClass <- c(qClass, "slider")
         }
 
@@ -75,12 +74,8 @@ isTernary <- function(qInd, qTitles){
   #if question has 5-6 columns
   if(nCols >= 5 && nCols < 7){
     #get column ending labels
-    colLabels <- sapply(qTitles[qInd[1]:qInd[2]], function(x){
-      str_split(x, " - ") %>%
-        unlist() %>%
-        tail(n = 1) %>%
-        trimws(which = c("both"))
-    })
+    colLabels <- getLabels(qInd, qTitles)
+
     #if 4th element is X and 5th element is Y return true
     if(colLabels[4] == "X" && colLabels[5] == "Y"){
       return(TRUE)

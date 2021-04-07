@@ -1,5 +1,11 @@
 
-
+#'creates data.frame which contains outline for collection file to be written
+#' out and editable by package user
+#'
+#' @param qData: collection data set
+#' @param qInds: beginning and ending indices for each question within
+#'  collection data set
+#' @param qTitles: Column headers for collection data set
 buildOutline <- function(qData, qInds, qTitles){
 
   # qIndsChar <- sapply(qInds, function(x){
@@ -10,57 +16,92 @@ buildOutline <- function(qData, qInds, qTitles){
                        CLASS = classifyQuestions(qData, qInds, qTitles))
   outline$COL_IND <- qInds
 
-  #addLevelsField(outline, qData, qTitles)
+  outline <- addLevelsField(outline, qData, qTitles) %>%
+    addOrderedField(qData, qTitles) %>%
+    addScaleField(qData, qTitles)
 
 
-  return(outline)
+
+
+  #return(outline)
 }
 
 addLevelsField <- function(outline, qData, qTitles){
+  LEVELS <- list()
   for(i in 1:NROW(outline)){
     #current question
     thisQ <- outline[i,]
     #starting column index of current question
     thisInd <- unlist(thisQ$COL_IND)
 
-    if(thisQ$CLASS == "discrete"){
+    #if question is an MCQ/Demographic
+    if(thisQ$CLASS == "discrete" || thisQ$CLASS == "marble"){
 
+      #get first column of data
+      firstCol <- qData[,thisInd[1]]
 
-      firstCol <-qData[,thisInd[1]]
+      #obtain all labels for data columns
+      labels <- getLabels(thisInd, qTitles)
 
-
-
-      if(is.integer(firstCol)){
+      #if data is in dummy column format
+      if(is.numeric(firstCol)){
         #obtain possible levels from headers
-        levels <- sapply(qTitles[thisInd[1]:thisInd[2]], function(x){
-          str_split(x, " - ") %>%
-            unlist() %>%
-            tail(n = 1) %>%
-            trimws(which=c("both"))
-        })
-        print(paste(levels, collapse = ", "))
+        if(thisQ$CLASS == "marble"){
+          thisLevels <- getMarbleLabels(thisInd, qTitles)
+        } else{
+          thisLevels <- labels
+        }
 
       } else if(is.character(firstCol)){
-
+        thisLevels <- as.factor(firstCol) %>%
+          levels()
+        if("other" %in% labels){
+          thisLevels <- c(thisLevels, "other")
+        }
+        #thisLevels <- paste(thisLevels, collapse = ", ")
       } else{
         print("Something unexpected happened")
       }
     } else{
-      #enter NA,
+      thisLevels <- NA
     }
+
+    #drop NA from levels if it exists
+    thisLevels <- thisLevels[thisLevels != "NA"]
+    LEVELS[[i]] <- thisLevels
   }
+  outline$LEVELS <- LEVELS
+  return(outline)
+
 }
 
+addOrderedField <- function(outline, qData, qTitles){
+  ORDERED = c()
+  for(i in 1:NROW(outline)){
+    thisQ <- outline[i,]
+    if(thisQ$CLASS == "discrete"){
+      ORDERED = c(ORDERED, 0)
+    } else{
+      ORDERED = c(ORDERED, NA)
+    }
+  }
+  return(cbind(outline, ORDERED))
+}
 
+addScaleField <- function(outline, qData, qTitles){
+  SCALE = c()
+  for(i in 1:NROW(outline)){
+    thisQ <- outline[i,]
+    if(thisQ$CLASS == "slider"){
+      SCALE = c(SCALE, "[0,1]")
+    } else if(thisQ$CLASS == "marble"){
+      SCALE = c(SCALE, "[0,1], [0,1]")
+    } else{
+      SCALE = c(SCALE, NA)
+    }
+  }
+  return(cbind(outline, SCALE))
+}
 
-# #TODO
-# buildContinuous <- function(qData, qInds){
-#   contData <- list()
-#   for(i in 1:length(qInds)){
-#     #print(qInds[[i]][1])
-#     contData[[i]] <- qData[qInds[[i]][1]:qInds[[i]][2]]
-#   }
-#   print(contData)
-# }
 
 
