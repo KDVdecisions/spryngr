@@ -2,7 +2,7 @@
 #' Returns a character vector corresponding to qInds indicating whether a question
 #' is discrete or continuous
 #'
-#' @param qData: Survey data
+#' @param qData: Collection data
 #' @param qInds: Question column beginning and ending indexes
 #' @param qTitles: Survey data headers
 #'

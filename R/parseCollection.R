@@ -20,7 +20,8 @@ parseCollection <- function(inputFile, outline = NULL){
       outline <- buildOutline(qData, qInds, qTitles)
     }
     buildContinuous(qData, outline, qTitles)
-    return(outline)
+    #return()
+    #return(outline)
     #build outline table
 
     #build continuous table

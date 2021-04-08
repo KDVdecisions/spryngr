@@ -1,12 +1,27 @@
 #'miscellaneous helper functions
 
-#' checks if a set of question columns which represent a MCQ/Demographic
+#' checks if a set of question columns which represent a MCQ/Demographic contain
+#' an 'other' free text field
 #' include an 'other' field
 #' @param qInd: question data column indices
 #' @param qTitles: Column headers for collection data set
 hasOtherColumn <- function(qInd, qTitles){
-  labels <- getLabels(qInd, qTites)
+  labels <- getLabels(qInd, qTitles)
   if("other" %in% labels){
+    return(TRUE)
+  } else{
+    return(FALSE)
+  }
+}
+
+#' checks if a set of question columns contain
+#' an 'NA' field
+#' include an 'other' field
+#' @param qInd: question data column indices
+#' @param qTitles: Column headers for collection data set
+hasNaColumn <- function(qInd, qTitles){
+  labels <- getLabels(qInd, qTitles)
+  if("NA" %in% labels){
     return(TRUE)
   } else{
     return(FALSE)
