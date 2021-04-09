@@ -44,6 +44,14 @@ getLabels <- function(qInd, qTitles){
 
 }
 
+getTitle <- function(qInd, qTitles){
+  title <- str_split(qTitles[qInd[1]], " - ") %>%
+    unlist() %>%
+    head(n = 1) %>%
+    trimws(which=c("both"))
+
+  return(title)
+}
 
 #'returns a vector containing each label for marble questions
 #'
@@ -68,3 +76,33 @@ getMarbleLabels <- function(qInd, qTitles){
 getElement <- function(data, index){
   return(data[index])
 }
+
+#'Generates and appends a logical field indicating if all other fields within a
+#'given row are NA to a question
+#'
+#'@param thisQData: collection data for a single question
+addNaField <- function(thisQData){
+  thisQData <- data.frame(thisQData, IS_NA = rep(NA, NROW(thisQData)))
+
+  for(i in 1:NROW(thisQData)){
+    hasNa <- sapply(thisQData[i,], USE.NAMES = FALSE, function(x){
+      if(is.na(x)){
+        return(TRUE)
+      } else{
+        return(FALSE)
+      }
+    })
+
+    if(FALSE %in% hasNa){
+      thisQData[i,NCOL(thisQData)] <- FALSE
+    } else{
+      thisQData[i,NCOL(thisQData)] <- TRUE
+    }
+
+  }
+  return(thisQData)
+
+}
+
+
+

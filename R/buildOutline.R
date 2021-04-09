@@ -55,9 +55,9 @@ addLevelsField <- function(outline, qData, qTitles){
       } else if(is.character(firstCol)){
         thisLevels <- as.factor(firstCol) %>%
           levels()
-        if("other" %in% labels){
-          thisLevels <- c(thisLevels, "other")
-        }
+        # if("other" %in% labels){
+        #   thisLevels <- c(thisLevels, "other")
+        # }
         #thisLevels <- paste(thisLevels, collapse = ", ")
       } else{
         print("Something unexpected happened")

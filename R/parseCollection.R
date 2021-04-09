@@ -14,19 +14,19 @@ parseCollection <- function(inputFile, outline = NULL){
     #separate columns into groups(questions hereafter) for each question
     qInds <- getQIndices(qData, qTitles)
 
-
-
+    #build outline table
     if(is.null(outline)){
       outline <- buildOutline(qData, qInds, qTitles)
     }
-    buildContinuous(qData, outline, qTitles)
-    #return()
-    #return(outline)
-    #build outline table
 
     #build continuous table
+    continuous <- buildContinuous(qData, outline, qTitles)
+    discrete <- buildDiscrete(qData, outline, qTitles)
+
+    return(outline)
 
     #build discrete table
+
 
     #write
   }
