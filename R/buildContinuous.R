@@ -13,7 +13,7 @@ buildContinuous <- function(qData, outline, qTitles){
     thisTitle <- paste(thisQ$QUESTION, getTitle(thisInd, qTitles))
 
     #if this question has an NA field, remove it and add a newly generated one
-    if(hasNaColumn(thisInd, qTitles)){
+    if(hasNaField(thisInd, qTitles)){
       thisQData <- qData[,thisInd[1]:(thisInd[2] - 1)]
     }
     thisQData <- addNaField(thisQData)

@@ -5,7 +5,7 @@
 #' include an 'other' field
 #' @param qInd: question data column indices
 #' @param qTitles: Column headers for collection data set
-hasOtherColumn <- function(qInd, qTitles){
+hasOtherField <- function(qInd, qTitles){
   labels <- getLabels(qInd, qTitles)
   if("other" %in% labels){
     return(TRUE)
@@ -19,7 +19,7 @@ hasOtherColumn <- function(qInd, qTitles){
 #' include an 'other' field
 #' @param qInd: question data column indices
 #' @param qTitles: Column headers for collection data set
-hasNaColumn <- function(qInd, qTitles){
+hasNaField <- function(qInd, qTitles){
   labels <- getLabels(qInd, qTitles)
   if("NA" %in% labels){
     return(TRUE)

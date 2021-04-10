@@ -2,49 +2,62 @@
 buildDiscrete <- function(qData, outline, qTitles){
   discreteData <- list()
   for(i in 1:NROW(outline)){
-    thisQ <- outline[i,]
+    thisQOutline <- outline[i,]
     #skip if question is not of type discrete
-    if(thisQ$CLASS != "discrete"){
+    if(thisQOutline$CLASS != "discrete"){
       next
     }
 
-    thisInd <- unlist(thisQ$COL_IND[[1]])
+    thisInd <- unlist(thisQOutline$COL_IND[[1]])
     thisQData <- as.data.frame(qData[,thisInd[1]:thisInd[2]])
-    thisTitle <- paste(thisQ$QUESTION, getTitle(thisInd, qTitles))
+    thisTitle <- paste(thisQOutline$QUESTION, getTitle(thisInd, qTitles))
 
     firstCol <- thisQData[,1]
     #if is non-checkbox mcq, expand fields,
     if(class(firstCol[1]) == "character"){
       #expand fields into dummy columns
-      thisQData <- expandFields(thisQData, thisQ)
+      thisQData <- expandFields(thisQData, thisQOutline)
+      #data already in dummy columns, format
     } else{
-
+      names(thisQData) <- getLabels(thisInd, qTitles)
+      if(hasNaField(thisInd, qTitles)){
+        thisQData <- thisQData[,1:(NCOL(thisQData) - 1)]
+      }
+      #add set column containing all selected levels per observation
+      thisQData <- addNaField(thisQData) %>%
+        replace(is.na(.), 0)
     }
-    #add set field
-
-
-
-
-
-
-
-    #if single choice expand fields, add set field
-
+    thisQData <- addSetField(thisQData, thisQOutline)
+    discreteData <- append(discreteData, list(thisQData))
+    names(discreteData)[length(discreteData)] <- thisTitle
   }
+
+  print(discreteData)
 
 }
 
-expandFields <- function(thisQData, thisQ){
-  labels <- thisQ$LEVELS
+addSetField <- function(thisQData, thisQOutline){
+  labels <- names(thisQData)
+  SET <-  list()
+  for(i in 1:NROW(thisQData)){
+    SET <- append(SET, list(labels[thisQData[i,] != 0]))
+  }
+  thisQData$SET <- SET
+
+  thisQData <- relocate(thisQData, SET, IS_NA, .after = everything())
+
+  return(thisQData)
+}
+
+expandFields <- function(thisQData, thisQOutline){
+  labels <- thisQOutline$LEVELS
   IS_NA <- c()
 
   qExpanded <- matrix(data = 0, nrow = NROW(thisQData),
-                      ncol = length(unlist(thisQ$LEVELS)))
-  colnames(qExpanded) <- unlist(thisQ$LEVELS)
-
+                      ncol = length(unlist(thisQOutline$LEVELS)))
+  colnames(qExpanded) <- unlist(thisQOutline$LEVELS)
 
   for(i in 1:NROW(thisQData)){
-
     col <- as.character(thisQData[i,1])
     if(is.na(col)){
       IS_NA <- append(IS_NA, TRUE)
@@ -52,7 +65,6 @@ expandFields <- function(thisQData, thisQ){
       IS_NA <- append(IS_NA, FALSE)
       qExpanded[i,col] <- 1
     }
-
   }
 
   qExpanded <- as.data.frame(qExpanded) %>%
@@ -62,7 +74,3 @@ expandFields <- function(thisQData, thisQ){
 
 }
 
-addSetField <- function(qData, thisQ){
-
-
-}
