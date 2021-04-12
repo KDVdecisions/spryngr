@@ -11,8 +11,24 @@ buildOutline <- function(qData, qInds, qTitles){
   # qIndsChar <- sapply(qInds, function(x){
   #   return(paste(x, collapse = ", "))
   # })
+  allTitles <- sapply(qTitles, USE.NAMES = FALSE, function(x){
+    str_split(x, " - ") %>%
+      unlist() %>%
+      head(n = 1) %>%
+      trimws(which = c("both"))
+  }) %>%
+    unique()
 
-  outline = data.frame(QUESTION = (1:length(qInds)),
+  #
+  # title <- str_split(qTitles[qInd[1]], " - ") %>%
+  #   unlist() %>%
+  #   head(n = 1) %>%
+  #   trimws(which=c("both"))
+  #
+  # return(title)
+  #
+
+  outline = data.frame(QUESTION = paste((1:length(qInds)), allTitles),
                        CLASS = classifyQuestions(qData, qInds, qTitles))
   outline$COL_IND <- qInds
 
@@ -23,7 +39,7 @@ buildOutline <- function(qData, qInds, qTitles){
 
 
 
-  #return(outline)
+  return(outline)
 }
 
 addLevelsField <- function(outline, qData, qTitles){

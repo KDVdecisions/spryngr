@@ -20,13 +20,14 @@ parseCollection <- function(inputFile, outline = NULL){
     }
 
     #build continuous table
-    continuous <- buildContinuous(qData, outline, qTitles)
-    discrete <- buildDiscrete(qData, outline, qTitles)
-    return(discrete)
-
-#    return(outline)
-
+    continuousData <- buildContinuous(qData, outline, qTitles)
     #build discrete table
+    discreteData <- buildDiscrete(qData, outline, qTitles)
+
+    #return(outline)
+
+    #print(names(outline))
+    writeCollectionData(inputFile, outline, continuousData, discreteData)
 
 
     #write

@@ -4,17 +4,18 @@ buildDiscrete <- function(qData, outline, qTitles){
   for(i in 1:NROW(outline)){
     thisQOutline <- outline[i,]
     #skip if question is not of type discrete
-    if(thisQOutline$CLASS != "discrete"){
+    if(!(thisQOutline$CLASS %in% c("discrete", "marble"))){
       next
     }
 
     thisInd <- unlist(thisQOutline$COL_IND[[1]])
     thisQData <- as.data.frame(qData[,thisInd[1]:thisInd[2]])
     thisTitle <- paste(thisQOutline$QUESTION, getTitle(thisInd, qTitles))
-
     firstCol <- thisQData[,1]
-    #if is non-checkbox mcq, expand fields,
-    if(class(firstCol[1]) == "character"){
+
+    if(thisQOutline$CLASS == "marble"){
+      thisQData <- expandMarbles(thisQData, thisInd, qTitles)
+    } else if(class(firstCol[1]) == "character"){
       #expand fields into dummy columns
       thisQData <- expandFields(thisQData, thisQOutline)
       #data already in dummy columns, format
@@ -32,7 +33,9 @@ buildDiscrete <- function(qData, outline, qTitles){
     names(discreteData)[length(discreteData)] <- thisTitle
   }
 
-  print(discreteData)
+
+return(discreteData)
+  #print(discreteData)
 
 }
 
@@ -40,7 +43,11 @@ addSetField <- function(thisQData, thisQOutline){
   labels <- names(thisQData)
   SET <-  list()
   for(i in 1:NROW(thisQData)){
-    SET <- append(SET, list(labels[thisQData[i,] != 0]))
+    if(thisQData[i,]$IS_NA){
+      SET <- append(SET, NA)
+    } else{
+      SET <- append(SET, list(labels[thisQData[i,] != 0]))
+    }
   }
   thisQData$SET <- SET
 
@@ -71,6 +78,31 @@ expandFields <- function(thisQData, thisQOutline){
     cbind(IS_NA)
 
   return(qExpanded)
+}
 
+expandMarbles <- function(thisQData, thisInd, qTitles){
+  #drop native NA col
+  if(hasNaField(thisInd, qTitles)){
+    thisQData <- thisQData[,1:(NCOL(thisQData) - 1)]
+  }
+  thisQData <- thisQData[,seq(1, NCOL(thisQData), 2)]
+  names(thisQData) <- getMarbleLabels(thisInd, qTitles)
+
+  IS_NA <- c()
+  thisQData[!is.na(thisQData)] <- 1
+  thisQData[is.na(thisQData)] <- 0
+
+  isZero <- thisQData == 0
+  for(i in 1:NROW(thisQData)){
+    if(!(FALSE %in% isZero[i,])){
+      IS_NA <- c(IS_NA, TRUE)
+    } else{
+      IS_NA <- c(IS_NA, FALSE)
+    }
+  }
+  thisQData <- cbind(thisQData, IS_NA)
+
+  return(thisQData)
+  #print(thisQData)
 }
 

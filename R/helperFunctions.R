@@ -64,7 +64,7 @@ getMarbleLabels <- function(qInd, qTitles){
       getElement(2) %>%
       trimws(which=c("both"))
   })
-  print(unique(labels))
+  return(unique(labels))
   #return(labels)
 }
 
@@ -102,6 +102,23 @@ addNaField <- function(thisQData){
   }
   return(thisQData)
 
+}
+
+collapseListData <- function(data){
+  for(i in 1:NCOL(data)){
+    if(class(data[,i]) == "list"){
+      data[,i] <- sapply(data[,i], function(x){
+        if(FALSE %in% is.na(x)){
+          return(paste(x, collapse = ", "))
+        } else{
+          return(NA)
+        }
+
+      })
+    }
+  }
+
+  return(data)
 }
 
 
