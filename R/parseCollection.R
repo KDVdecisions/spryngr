@@ -6,7 +6,8 @@ parseCollection <- function(inputFile, outline = NULL){
     cat("Exiting...\n")
 
   } else{
-    rawData <- read.csv(inputFile, check.names=F, na.strings = c("NA",""))
+    rawData <- read.csv(inputFile, check.names=FALSE, na.strings = c("NA",""))
+
     #clean collection data
     qData <- rawData[15:(length(rawData) - 1)]
     qTitles <- names(qData)[1:(length(names(qData)))]
@@ -17,6 +18,21 @@ parseCollection <- function(inputFile, outline = NULL){
     #build outline table
     if(is.null(outline)){
       outline <- buildOutline(qData, qInds, qTitles)
+    } else {
+      outline <- read.xlsx(outline, sheetIndex = 1, check.names = FALSE)
+
+      outline$COL_IND <- sapply(outline$COL_IND, USE.NAMES = FALSE,
+                                function(x){
+                                  strsplit(x, ", ") %>%
+                                    unlist() %>%
+                                    as.integer() %>%
+                                    list()
+                                })
+
+      outline$LEVELS <- sapply(outline$LEVELS, USE.NAMES = FALSE,
+                               function(x){
+                                 strsplit(x, ", ")
+                               })
     }
 
     #build continuous table
@@ -24,9 +40,6 @@ parseCollection <- function(inputFile, outline = NULL){
     #build discrete table
     discreteData <- buildDiscrete(qData, outline, qTitles)
 
-    #return(outline)
-
-    #print(names(outline))
     writeCollectionData(inputFile, outline, continuousData, discreteData)
 
 

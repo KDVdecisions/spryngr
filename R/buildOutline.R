@@ -8,9 +8,6 @@
 #' @param qTitles: Column headers for collection data set
 buildOutline <- function(qData, qInds, qTitles){
 
-  # qIndsChar <- sapply(qInds, function(x){
-  #   return(paste(x, collapse = ", "))
-  # })
   allTitles <- sapply(qTitles, USE.NAMES = FALSE, function(x){
     str_split(x, " - ") %>%
       unlist() %>%
@@ -19,28 +16,46 @@ buildOutline <- function(qData, qInds, qTitles){
   }) %>%
     unique()
 
-  #
-  # title <- str_split(qTitles[qInd[1]], " - ") %>%
-  #   unlist() %>%
-  #   head(n = 1) %>%
-  #   trimws(which=c("both"))
-  #
-  # return(title)
-  #
-
   outline = data.frame(QUESTION = paste((1:length(qInds)), allTitles),
                        CLASS = classifyQuestions(qData, qInds, qTitles))
   outline$COL_IND <- qInds
 
   outline <- addLevelsField(outline, qData, qTitles) %>%
     addOrderedField(qData, qTitles) %>%
-    addScaleField(qData, qTitles)
+    addScaleField(qData, qTitles) %>%
+    addLabelsField(qData, qTitles)
 
-
-
+  print(outline$LABELS)
 
   return(outline)
 }
+
+addLabelsField <- function(outline, qData, qTitles){
+  LABELS <- list()
+
+
+  for(i in 1:NROW(outline)){
+    thisQ <- outline[i,]
+    thisInd <- unlist(thisQ$COL_IND)
+
+    if(thisQ$CLASS == "slider"){
+      thisLabels <- c("-X Label", "+X Label")
+    } else if(thisQ$CLASS == "ternary"){
+      thisLabels <- getTernaryLabels(thisInd, qTitles)
+    } else if(thisQ$CLASS == "discrete"){
+      thisLabels <- unlist(thisQ$LEVELS)
+    } else if(thisQ$CLASS == "marble"){
+      thisLabels <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
+    } else{
+      print("something unexpected happend in addLabelsField()")
+    }
+    LABELS[[i]] <- thisLabels
+  }
+  outline$LABELS <- LABELS
+  return(outline)
+}
+
+
 
 addLevelsField <- function(outline, qData, qTitles){
   LEVELS <- list()
@@ -71,15 +86,17 @@ addLevelsField <- function(outline, qData, qTitles){
       } else if(is.character(firstCol)){
         thisLevels <- as.factor(firstCol) %>%
           levels()
-        # if("other" %in% labels){
-        #   thisLevels <- c(thisLevels, "other")
-        # }
-        #thisLevels <- paste(thisLevels, collapse = ", ")
       } else{
-        print("Something unexpected happened")
+        print("Something unexpected happened BO_1")
       }
+    } else if(thisQ$CLASS == "ternary"){
+      thisLevels <- NA #getTernaryLabels(thisInd, qTitles)
+
+
+    } else if(thisQ$CLASS == "slider"){
+      thisLevels = NA #c("left lab", "right lab")
     } else{
-      thisLevels <- NA
+      print("Something unexpected happend BO_2")
     }
 
     #drop NA from levels if it exists
@@ -118,6 +135,9 @@ addScaleField <- function(outline, qData, qTitles){
   }
   return(cbind(outline, SCALE))
 }
+
+
+
 
 
 

@@ -10,7 +10,7 @@ buildDiscrete <- function(qData, outline, qTitles){
 
     thisInd <- unlist(thisQOutline$COL_IND[[1]])
     thisQData <- as.data.frame(qData[,thisInd[1]:thisInd[2]])
-    thisTitle <- paste(thisQOutline$QUESTION, getTitle(thisInd, qTitles))
+    thisTitle <- thisQOutline$QUESTION
     firstCol <- thisQData[,1]
 
     if(thisQOutline$CLASS == "marble"){
@@ -21,15 +21,25 @@ buildDiscrete <- function(qData, outline, qTitles){
       #data already in dummy columns, format
     } else{
       names(thisQData) <- getLabels(thisInd, qTitles)
+
+
       if(hasNaField(thisInd, qTitles)){
         thisQData <- thisQData[,1:(NCOL(thisQData) - 1)]
       }
+
+      print(names(thisQData))
+
       #add set column containing all selected levels per observation
       thisQData <- addNaField(thisQData) %>%
         replace(is.na(.), 0)
+
+
+
     }
     thisQData <- addSetField(thisQData, thisQOutline)
     discreteData <- append(discreteData, list(thisQData))
+
+
     names(discreteData)[length(discreteData)] <- thisTitle
   }
 
@@ -56,12 +66,14 @@ addSetField <- function(thisQData, thisQOutline){
   return(thisQData)
 }
 
+#'
 expandFields <- function(thisQData, thisQOutline){
   labels <- thisQOutline$LEVELS
   IS_NA <- c()
 
   qExpanded <- matrix(data = 0, nrow = NROW(thisQData),
                       ncol = length(unlist(thisQOutline$LEVELS)))
+
   colnames(qExpanded) <- unlist(thisQOutline$LEVELS)
 
   for(i in 1:NROW(thisQData)){

@@ -34,8 +34,6 @@ writeCollectionData <- function(inputFile, outline, continuousData, discreteData
     #Write textfile containing path to relevant input file
     writeLines(normalizePath(inputFile), paste0(outputName,"/","Data_Path.txt"))
 
-    #print(outline)
-
     outline <- collapseListData(outline)
     continuousData <- lapply(continuousData, collapseListData)
     discreteData <- lapply(discreteData, collapseListData)
@@ -45,7 +43,7 @@ writeCollectionData <- function(inputFile, outline, continuousData, discreteData
                showNA = TRUE, row.names = FALSE)
 
     for(i in 1:length(continuousData)){
-      name <- gsub("([\\])","", names(continuousData)[i])
+      name <- gsub("([\\?])","", names(continuousData)[i])
 
       write.xlsx(x = continuousData[[i]], file = paste0(outputName, "/", "Data/continuousData.xlsx"),
                  sheetName = name, showNA = TRUE,
@@ -53,7 +51,8 @@ writeCollectionData <- function(inputFile, outline, continuousData, discreteData
     }
 
     for(i in 1:length(discreteData)){
-      name <- gsub("([\\])","", names(continuousData)[i])
+      name <- gsub("([\\?])","", names(discreteData)[i])
+
 
       write.xlsx(x = discreteData[[i]], file = paste0(outputName, "/", "Data/discreteData.xlsx"),
                  sheetName = name, showNA = TRUE,

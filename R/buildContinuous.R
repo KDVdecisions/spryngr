@@ -10,7 +10,7 @@ buildContinuous <- function(qData, outline, qTitles){
 
     thisInd <- unlist(thisQ$COL_IND[[1]])
     thisQData <- qData[,thisInd[1]:thisInd[2]]
-    thisTitle <- paste(thisQ$QUESTION, getTitle(thisInd, qTitles))
+    thisTitle <- thisQ$QUESTION
 
     #if this question has an NA field, remove it and add a newly generated one
     if(hasNaField(thisInd, qTitles)){
@@ -18,10 +18,18 @@ buildContinuous <- function(qData, outline, qTitles){
     }
     thisQData <- addNaField(thisQData)
 
+
     #generate titles based on question class
     if(thisQ$CLASS == "slider"){
       #write X, NA
       names(thisQData) <- c("X", "IS_NA")
+      #add y column (just 1-x)
+      thisQData$Y <- (1-thisQData$X)
+      thisQData <- select(thisQData, "X", "Y", "IS_NA")
+
+      heyNow <- normalizeData(thisQData, -10, 0)
+
+
       continuousData <- append(continuousData, list(thisQData))
 
     } else if(thisQ$CLASS == "ternary"){
@@ -34,7 +42,8 @@ buildContinuous <- function(qData, outline, qTitles){
     } else if(thisQ$CLASS == "marble"){
       #write X,Y, NA
       nPairs = (NCOL(thisQData) - 1)/2
-      names(thisQData) <- c(rep(c("X", "Y"), nPairs), "IS_NA")
+      names(thisQData) <- c(rep(c("X", "Y"), nPairs), "IS_NA") %>%
+        make.unique()
       continuousData <- append(continuousData, list(thisQData))
       #continuousData[[i]] <- thisQData
     } else{

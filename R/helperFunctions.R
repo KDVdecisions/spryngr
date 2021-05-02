@@ -40,6 +40,7 @@ getLabels <- function(qInd, qTitles){
       tail(n = 1) %>%
       trimws(which=c("both"))
   })
+
   return(labels)
 
 }
@@ -58,14 +59,28 @@ getTitle <- function(qInd, qTitles){
 #' @param qInd: question data column indices
 #' @param qTitles: Column headers for collection data set
 getMarbleLabels <- function(qInd, qTitles){
-  labels <- sapply(qTitles[qInd[1]:qInd[2]], USE.NAMES = FALSE, function(x){
+  labels <- sapply(qTitles[qInd[1]:qInd[2]], function(x){
     str_split(x, " - ") %>%
       unlist() %>%
       getElement(2) %>%
       trimws(which=c("both"))
-  })
+  }, USE.NAMES = FALSE)
+
   return(unique(labels))
-  #return(labels)
+}
+
+getTernaryLabels <- function(qInd, qTitles){
+
+
+  labels <- qTitles[qInd[1]:(qInd[1]+2)] %>%
+    sapply(function(x){
+      str_split(x, " - ") %>%
+        unlist() %>%
+        getElement(2) %>%
+        trimws(which = c("both"))
+    }, USE.NAMES = FALSE)
+
+  return(labels)
 }
 
 #'function to return sepific element, created to be able to use %>% piping
@@ -82,7 +97,7 @@ getElement <- function(data, index){
 #'
 #'@param thisQData: collection data for a single question
 addNaField <- function(thisQData){
-  thisQData <- data.frame(thisQData, IS_NA = rep(NA, NROW(thisQData)))
+  thisQData <- data.frame(thisQData, check.names = FALSE, IS_NA = rep(NA, NROW(thisQData)))
 
   for(i in 1:NROW(thisQData)){
     hasNa <- sapply(thisQData[i,], USE.NAMES = FALSE, function(x){
@@ -120,6 +135,24 @@ collapseListData <- function(data){
 
   return(data)
 }
+
+
+#'scales slider data to fall between a specified lower and upper limit
+#'
+#'@param slider: question object of type slider
+#'@param lower: lower scale limit
+#'@param upper: upper scale limit
+#'TODO:
+normalizeData <- function(data, lower, upper){
+  nData <- data
+  for(i in 1:(NCOL(data) - 1)){
+    nData[,i] <- sapply(data[,i], function(x){
+      (upper - lower) * x + lower
+    }, USE.NAMES = FALSE)
+  }
+}
+
+
 
 
 
