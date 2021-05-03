@@ -153,6 +153,73 @@ normalizeData <- function(data, lower, upper){
 }
 
 
+#' Function which saves one or more ggplot objects
+#'
+#' @param plots a ggplot object or list of ggplot objects
+#' @param path a string containing a location to save the plots.  If left blank a location may be selected via a windows file explorer dialogue box
+#' @param names a vector of strings the same length as the list of plots.  If left blank random names will be generated
+#'
+#' @return
+#' @export
+#'
+writePlots <- function(plots, path=NULL, names=NULL, width=NA, height=NA){
+  if(is.null(path)){
+    path <- choose.dir()
+  }
+
+  if(!is.null(names)){
+    filesAtPath <- list.files(path) %>%
+      str_remove(".png")
+    overlap <- names %in% filesAtPath
+
+    if(TRUE %in% overlap){
+      warning(sprintf("Files with the name(s): %s already exist in this location",
+                      paste(names[overlap], collapse=", ")))
+      return()
+    }
+  }
+
+  #if plots = a single ggplot object
+  if(class(plots)[1] == "gg"){
+    if(is.null(names)){
+      names <- paste0("spryngr_plot_", randString())
+    }
+    else if(length(names) != 1){
+      warning("names vector must be same length as plots argument")
+      return()
+    }
+    ggsave(paste0(path, "/", names, ".png"), plots, width=width, height=heigth)
+  }
+
+  #if plots = a list of ggplot objects
+  else if(class(plots) == "list"){
+    if(is.null(names)){
+      names <- replicate(length(plots), randString()) %>%
+        lapply(function(x){
+          paste0("spryngr_plot_", x)
+        }) %>%
+        unlist()
+    }
+    else if(length(names) != length(plots)){
+      warning("names vector must be same length as plots argument")
+      return()
+    }
+    for(i in 1:length(plots)){
+      ggsave(paste0(path, "/", names[i], ".png"), plots[[i]], width=width, height=height)
+    }
+  }
+
+}
+
+#' helper function for writePlots() function.  Generates random selection of
+#' consonants and numbers of length 5 for file names
+#'
+randString <- function(){
+  chars <- c("1","2","3","4","5","6","7","8","9",
+             letters[!letters %in% c("a","e","i","o","u")])
+  return(paste(sample(chars, 9, replace=TRUE), collapse=""))
+
+}
 
 
 
