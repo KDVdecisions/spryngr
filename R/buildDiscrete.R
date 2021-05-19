@@ -27,7 +27,6 @@ buildDiscrete <- function(qData, outline, qTitles){
         thisQData <- thisQData[,1:(NCOL(thisQData) - 1)]
       }
 
-      print(names(thisQData))
 
       #add set column containing all selected levels per observation
       thisQData <- addNaField(thisQData) %>%

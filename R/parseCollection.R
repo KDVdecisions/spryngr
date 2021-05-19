@@ -6,7 +6,8 @@ parseCollection <- function(inputFile, outline = NULL){
     cat("Exiting...\n")
 
   } else{
-    rawData <- read.csv(inputFile, check.names=FALSE, na.strings = c("NA",""))
+    rawData <- read.csv(inputFile, check.names = FALSE, na.strings = c("NA",""),
+                        blank.lines.skip = TRUE)
 
     #clean collection data
     qData <- rawData[15:(length(rawData) - 1)]
@@ -35,10 +36,19 @@ parseCollection <- function(inputFile, outline = NULL){
                                })
     }
 
+
+
     #build continuous table
     continuousData <- buildContinuous(qData, outline, qTitles)
+    cIds <- filter(outline, CLASS %in% c("slider", "marble", "ternary"))$ID
+    names(continuousData) <- paste(cIds, names(continuousData))
+
+
     #build discrete table
     discreteData <- buildDiscrete(qData, outline, qTitles)
+    dIds <- filter(outline, CLASS %in% c("discrete", "marble"))$ID
+    names(discreteData) <- paste(dIds, names(discreteData))
+
 
     writeCollectionData(inputFile, outline, continuousData, discreteData)
 

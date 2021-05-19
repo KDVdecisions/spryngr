@@ -16,7 +16,7 @@ buildOutline <- function(qData, qInds, qTitles){
   }) %>%
     unique()
 
-  outline = data.frame(QUESTION = paste((1:length(qInds)), allTitles),
+  outline = data.frame(ID = as.character(1:length(qInds)), QUESTION = allTitles,
                        CLASS = classifyQuestions(qData, qInds, qTitles))
   outline$COL_IND <- qInds
 
@@ -24,9 +24,6 @@ buildOutline <- function(qData, qInds, qTitles){
     addOrderedField(qData, qTitles) %>%
     addScaleField(qData, qTitles) %>%
     addLabelsField(qData, qTitles)
-
-  print(outline$LABELS)
-
   return(outline)
 }
 
@@ -112,8 +109,8 @@ addOrderedField <- function(outline, qData, qTitles){
   ORDERED = c()
   for(i in 1:NROW(outline)){
     thisQ <- outline[i,]
-    if(thisQ$CLASS == "discrete"){
-      ORDERED = c(ORDERED, 0)
+    if(thisQ$CLASS %in% c("discrete", "marble")){
+      ORDERED = c(ORDERED, 1)
     } else{
       ORDERED = c(ORDERED, NA)
     }
