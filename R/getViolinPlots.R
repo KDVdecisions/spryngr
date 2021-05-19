@@ -8,10 +8,11 @@
 #' to being returned as ggplot objects
 #' @param setOutputLocation: logical, if true users will be prompted via GUI to set a location to
 #' write out generated plots
-plotAllViolin <- function(outputFolder, showMean = TRUE,
-                              palette = NULL, writePlots = FALSE,
-                          setOutputLocation = FALSE){
+plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
+                          writePlots = FALSE, setOutputLocation = FALSE,
+                        subsetIDs = NULL){
 
+  subsetIDs = as.character(subsetIDs)
   #save paths to data folders
   discretePath <- paste0(outputFolder, "/Data/discreteData.xlsx")
   continuousPath <- paste0(outputFolder, "/Data/continuousData.xlsx")
@@ -23,23 +24,61 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,
   outline$LABELS <- toList(outline$LABELS)
   outline$LEVELS <- toList(outline$LEVELS)
 
-  #read in continuous data and separate continuous outline obersvations
-  continuousData <- getAllDataSheets(continuousPath)
-  cOutline <- filter(outline, CLASS != "discrete")
+
+
+
+  if(!is.null(subsetIDs)){
+
+    #Find sheet indices for continuous data
+    cOutline <- filter(outline, CLASS != "discrete")
+    cSheetInds <- which(cOutline$ID %in% subsetIDs)
+
+    #find sheetIndices for discrete data
+    dOutline <- filter(outline, CLASS %in% c("discrete", "marble"))
+    dSheetInds <- which(dOutline$ID %in% subsetIDs)
+
+
+    #subset outline to only include subset
+    outline <- outline[outline$ID %in% subsetIDs,]
+
+    #read in continuous data
+    continuousData <- lapply(cSheetInds, function(x){
+      return(read.xlsx(continuousPath, sheetIndex = x, check.names = FALSE))
+    })
+
+    #read in discrete data
+    discreteData <- lapply(dSheetInds, function(x){
+      return(read.xlsx(discretePath, sheetIndex = x, check.names = FALSE))
+    })
+
+  } else {
+    continuousData <- getAllDataSheets(continuousPath)
+    discreteData <- getAllDataSheets(discretePath)
+  }
+
+
+
+  continuousOutline <- filter(outline, CLASS != "discrete")
+
 
   #read in discrete data and separate discrete outline observations
-  discreteData <- getAllDataSheets(discretePath)
-  dOutline <- filter(outline, CLASS %in% c("discrete", "marble"))
+
+  discreteOutline <- filter(outline, CLASS %in% c("discrete", "marble"))
+
   #initialize fill container
   discreteFills <- list()
+  discreteLabPairs <- list()
+
+
 
 
   for(i in 1:length(discreteData)){
     #format discrete data
-    discreteData[[i]] <- formatDiscrete(discreteData[[i]]$SET, dOutline[i,], palette)
+    discreteData[[i]] <- formatDiscrete(discreteData[[i]]$SET, discreteOutline[i,], palette)
     nLevels <- length(levels(discreteData[[i]]$SET))
     #generate set of fills for each discrete question
     discreteFills[[i]] <- colorRampPalette(brewer.pal(8, palette))(nLevels)
+    discreteLabPairs[[i]] <- generateDiscreteLabels(discreteOutline[i,])
   }
 
 
@@ -52,10 +91,10 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,
   for(i in 1:length(continuousData)){
 
     #get Outline row for this continuous question
-    thisOutline <- cOutline[i,]
+    thisOutline <- continuousOutline[i,]
 
     #get question title for continuous question
-    title <- cOutline[i,]$QUESTION
+    title <- continuousOutline[i,]$QUESTION
 
     #get continuous data for this question and drop IS_NA col
     thisContinuous <- continuousData[[i]] %>%
@@ -64,7 +103,7 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,
     #for reach discrete data question
     for(j in 1:length(discreteData)){
       #get question title for discrete data
-      ylab <- dOutline[j,]$QUESTION
+      ylab <- discreteOutline[j,]$QUESTION
       #get all selected factors for this
       thisDiscrete <- discreteData[[j]]
 
@@ -74,7 +113,8 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,
         xlab <- generateXLabel(thisOutline, k)
         #generate plot
         p <- violinPlot(thisContinuous[thisDiscrete$ROW_ID,k], thisDiscrete$SET,
-                        fill = discreteFills[[j]], title, xlab, ylab, showMean)
+                        fill = discreteFills[[j]], title, xlab, ylab, showMean,
+                        labelPairs = discreteLabPairs[[j]])
 
         plots[[plotInd]] <- p
         plotInd <- plotInd + 1
@@ -98,26 +138,6 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,
 
 }
 
-#TODO:
-
-plotOneViolin <- function(outputFolder, continuousInd, columnInd,
-                          discreteInd = NULL,title = NULL, xlab = NULL,
-                          ylab = NULL, showMean = TRUE, palette = NULL){
-
-  outline <- read.xlsx(paste0(outputFolder,"/Data/outline.xlsx"), sheetIndex = 1)
-
-  if(!is.null(discreteInd)){
-
-  }
-
-
-  cont <- outline[continuousInd,]
-
-
-
-  return(outline)
-
-}
 
 #'reads data from each sheet within a .xlsx file
 getAllDataSheets <- function(path){
@@ -132,7 +152,21 @@ getAllDataSheets <- function(path){
 }
 
 
-
+generateDiscreteLabels <- function(thisOutline){
+  labelPairs <- list()
+  if(thisOutline$CLASS == "marble"){
+    labelPairs <- unlist(thisOutline$LEVELS) %>%
+      as.list()
+    names(labelPairs) <- unlist(thisOutline$LEVELS)
+  }
+  else{
+    for(i in 1:length(thisOutline$LEVELS)){
+      thisLevel <- unlist(thisOutline$LEVELS[i])
+      labelPairs[thisLevel] <- unlist(thisOutline$LABELS[i])
+    }
+  }
+  return(labelPairs)
+}
 
 
 #'generates x axis label based on question input and outline file
@@ -182,8 +216,14 @@ formatDiscrete <- function(data, thisOutline, palette){
   }
 
   #convert to factor, ordered if specified in outline
-  observations <- factor(x = observations, levels = unlist(thisOutline$LEVELS),
-                         ordered = thisOutline$ORDERED)
+  if(thisOutline$ORDERED){
+    observations <- factor(x = observations, levels = unlist(thisOutline$LEVELS),
+                           ordered = TRUE)
+  } else{
+    observations <- factor(x = observations)
+  }
+
+
 
   #generate a fill ID key
   nLevels <- length(levels(observations))
@@ -218,7 +258,7 @@ toList <- function(data){
 #' mean value
 violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title",
                        xlab = "-xlab <---> +xlab", ylab = "ylab",
-                       showMean = TRUE){
+                       showMean = TRUE, labelPairs = NULL){
 
   if(is.null(discrete)){
     discrete <- rep("respones", NROW(continuous))
@@ -228,13 +268,19 @@ violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title"
   plotData <- na.omit(plotData)
 
 
+
+  presentLevels <- factor(plotData$discrete) %>%
+    levels()
+  yAxisTicks <- unlist(labelPairs[presentLevels])
+
+
   p <- ggplot(data = plotData, mapping = aes(x = continuous, y = discrete, fill = discrete)) +
     geom_violin() +
     labs(title = title) +
     xlab(xlab) +
     ylab(ylab) +
-    scale_fill_manual(values = fill)
-    #scale_fill_manual(values = fill, breaks = levels(plotData$discrete)) ???
+    scale_fill_manual(values = fill, breaks = levels(plotData$discrete)) +
+    scale_y_discrete(labels = yAxisTicks)
 
   if(showMean){
     p <- p + stat_summary(data = plotData, mapping = aes(x = continuous, y = discrete),
@@ -248,6 +294,26 @@ violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title"
 
 
 
+#TODO:
+
+plotOneViolin <- function(outputFolder, continuousInd, columnInd,
+                          discreteInd = NULL,title = NULL, xlab = NULL,
+                          ylab = NULL, showMean = TRUE, palette = NULL){
+
+  outline <- read.xlsx(paste0(outputFolder,"/Data/outline.xlsx"), sheetIndex = 1)
+
+  if(!is.null(discreteInd)){
+
+  }
+
+
+  cont <- outline[continuousInd,]
+
+
+
+  return(outline)
+
+}
 
 
 

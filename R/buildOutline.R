@@ -40,7 +40,8 @@ addLabelsField <- function(outline, qData, qTitles){
     } else if(thisQ$CLASS == "ternary"){
       thisLabels <- getTernaryLabels(thisInd, qTitles)
     } else if(thisQ$CLASS == "discrete"){
-      thisLabels <- unlist(thisQ$LEVELS)
+      thisLabels <- unlist(thisQ$LEVELS) %>%
+        sort()
     } else if(thisQ$CLASS == "marble"){
       thisLabels <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
     } else{
@@ -98,7 +99,8 @@ addLevelsField <- function(outline, qData, qTitles){
 
     #drop NA from levels if it exists
     thisLevels <- thisLevels[thisLevels != "NA"]
-    LEVELS[[i]] <- thisLevels
+    LEVELS[[i]] <- thisLevels %>%
+      sort()
   }
   outline$LEVELS <- LEVELS
   return(outline)
