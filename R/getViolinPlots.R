@@ -10,9 +10,8 @@
 #' write out generated plots
 plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
                           writePlots = FALSE, setOutputLocation = FALSE,
-                        subsetIDs = NULL){
+                          subsetIDs = NULL){
 
-  subsetIDs = as.character(subsetIDs)
   #save paths to data folders
   discretePath <- paste0(outputFolder, "/Data/discreteData.xlsx")
   continuousPath <- paste0(outputFolder, "/Data/continuousData.xlsx")
@@ -28,6 +27,8 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
 
 
   if(!is.null(subsetIDs)){
+    #ensure observation IDs are being treated as chars
+    subsetIDs = as.character(subsetIDs)
 
     #Find sheet indices for continuous data
     cOutline <- filter(outline, CLASS != "discrete")
@@ -50,13 +51,15 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
     discreteData <- lapply(dSheetInds, function(x){
       return(read.xlsx(discretePath, sheetIndex = x, check.names = FALSE))
     })
+    print("HEY 1")
 
   } else {
     continuousData <- getAllDataSheets(continuousPath)
     discreteData <- getAllDataSheets(discretePath)
+    print("HEY")
   }
 
-
+  print(discreteData)
 
   continuousOutline <- filter(outline, CLASS != "discrete")
 
@@ -280,6 +283,8 @@ violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title"
     xlab(xlab) +
     ylab(ylab) +
     scale_fill_manual(values = fill, breaks = levels(plotData$discrete)) +
+    #scale_fill_manual(values = fill, breaks = levels(plotData$discrete),
+    #                  name = NULL, labels = yAxisTicks) +
     scale_y_discrete(labels = yAxisTicks)
 
   if(showMean){
