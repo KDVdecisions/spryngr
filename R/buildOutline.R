@@ -23,35 +23,73 @@ buildOutline <- function(qData, qInds, qTitles){
   outline <- addLevelsField(outline, qData, qTitles) %>%
     addOrderedField(qData, qTitles) %>%
     addScaleField(qData, qTitles) %>%
-    addLabelsField(qData, qTitles)
+    addLabelFields(qData, qTitles)
   return(outline)
 }
 
-addLabelsField <- function(outline, qData, qTitles){
-  LABELS <- list()
-
+addLabelFields <- function(outline, qData, qTitles){
+  continuousLabels <- list()
+  discreteLabels <- list()
 
   for(i in 1:NROW(outline)){
     thisQ <- outline[i,]
     thisInd <- unlist(thisQ$COL_IND)
+    #set both to NA and reassign as needed
+    thisContinuousLab <- NA
+    thisDiscreteLab <- NA
 
     if(thisQ$CLASS == "slider"){
-      thisLabels <- c("-X Label", "+X Label")
+      thisContinuousLab <- c("-X Label", "+X Label")
+
     } else if(thisQ$CLASS == "ternary"){
-      thisLabels <- getTernaryLabels(thisInd, qTitles)
+      thisContinuousLab <- getTernaryLabels(thisInd, qTitles)
+
     } else if(thisQ$CLASS == "discrete"){
-      thisLabels <- unlist(thisQ$LEVELS) %>%
-        sort()
+      thisDiscreteLab <- unlist(thisQ$LEVELS)
+
     } else if(thisQ$CLASS == "marble"){
-      thisLabels <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
-    } else{
-      print("something unexpected happend in addLabelsField()")
+      thisContinuousLab <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
+      thisDiscreteLab <- unlist(thisQ$LEVELS)
+    } else {
+      print("something unexpected happend in addLabelsFields()")
     }
-    LABELS[[i]] <- thisLabels
+    continuousLabels[[i]] <- thisContinuousLab
+    discreteLabels[[i]] <- thisDiscreteLab
   }
-  outline$LABELS <- LABELS
+
+  outline$CONTINUOUS_LABELS <- continuousLabels
+  outline$DISCRETE_LABELS <- discreteLabels
+
   return(outline)
+
 }
+
+
+# addLabelsField <- function(outline, qData, qTitles){
+#   LABELS <- list()
+#
+#
+#   for(i in 1:NROW(outline)){
+#     thisQ <- outline[i,]
+#     thisInd <- unlist(thisQ$COL_IND)
+#
+#     if(thisQ$CLASS == "slider"){
+#       thisLabels <- c("-X Label", "+X Label")
+#     } else if(thisQ$CLASS == "ternary"){
+#       thisLabels <- getTernaryLabels(thisInd, qTitles)
+#     } else if(thisQ$CLASS == "discrete"){
+#       thisLabels <- unlist(thisQ$LEVELS) %>%
+#         sort()
+#     } else if(thisQ$CLASS == "marble"){
+#       thisLabels <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
+#     } else{
+#       print("something unexpected happend in addLabelsField()")
+#     }
+#     LABELS[[i]] <- thisLabels
+#   }
+#   outline$LABELS <- LABELS
+#   return(outline)
+# }
 
 
 

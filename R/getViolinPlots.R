@@ -20,7 +20,9 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
   outline <- read.xlsx(paste0(outputFolder, "/Data/outline.xlsx"), sheetIndex = 1)
 
   #convert comma separated values to vectors
-  outline$LABELS <- toList(outline$LABELS)
+  #outline$LABELS <- toList(outline$LABELS)
+  outline$CONTINUOUS_LABELS <- toList(outline$CONTINUOUS_LABELS)
+  outline$DISCRETE_LABELS <- toList(outline$DISCRETE_LABELS)
   outline$LEVELS <- toList(outline$LEVELS)
 
 
@@ -143,6 +145,8 @@ plotAllViolin <- function(outputFolder, showMean = TRUE,palette = NULL,
 
 
 #'reads data from each sheet within a .xlsx file
+#'
+#'@param path: path to a .xslx file
 getAllDataSheets <- function(path){
   #organize all discrete data into a list
   wb <- xlsx::loadWorkbook(file = path)
@@ -154,20 +158,19 @@ getAllDataSheets <- function(path){
   return(data)
 }
 
-
+#'generates the labelPairs list, a key-value like structure where the
+#'key (name of the element) is the discrete factor level and the value is the
+#'label which should appear in generated graphics
+#'
+#'@param thisOutline: a row from the outline file
 generateDiscreteLabels <- function(thisOutline){
   labelPairs <- list()
-  if(thisOutline$CLASS == "marble"){
-    labelPairs <- unlist(thisOutline$LEVELS) %>%
-      as.list()
-    names(labelPairs) <- unlist(thisOutline$LEVELS)
-  }
-  else{
+
     for(i in 1:length(thisOutline$LEVELS)){
       thisLevel <- unlist(thisOutline$LEVELS[i])
-      labelPairs[thisLevel] <- unlist(thisOutline$LABELS[i])
+      labelPairs[thisLevel] <- unlist(thisOutline$DISCRETE_LABELS[i])
     }
-  }
+
   return(labelPairs)
 }
 
@@ -182,19 +185,19 @@ generateXLabel <- function(thisOutline, index){
 
   if(thisOutline$CLASS == "marble"){
     if(index%%2 != 0){
-      leftLabel <- thisOutline$LABELS[[1]][1]
-      rightLabel <- thisOutline$LABELS[[1]][2]
+      leftLabel <- thisOutline$CONTINUOUS_LABELS[[1]][1]
+      rightLabel <- thisOutline$CONTINUOUS_LABELS[[1]][2]
     } else{
-      leftLabel <- thisOutline$LABELS[[1]][3]
-      rightLabel <- thisOutline$LABELS[[1]][4]
+      leftLabel <- thisOutline$CONTINUOUS_LABELS[[1]][3]
+      rightLabel <- thisOutline$CONTINUOUS_LABELS[[1]][4]
     }
   }else if(thisOutline$CLASS == "slider") {
-    leftLabel <- thisOutline$LABELS[[1]][1]
-    rightLabel <- thisOutline$LABELS[[1]][2]
+    leftLabel <- thisOutline$CONTINUOUS_LABELS[[1]][1]
+    rightLabel <- thisOutline$CONTINUOUS_LABELS[[1]][2]
 
   }else if(thisOutline$CLASS == "ternary"){
-    leftLabel <- paste0("-",thisOutline$LABELS[[1]][index])
-    rightLabel <- paste0("+",thisOutline$LABELS[[1]][index])
+    leftLabel <- paste0("-",thisOutline$CONTINUOUS_LABELS[[1]][index])
+    rightLabel <- paste0("+",thisOutline$CONTINUOUS_LABELS[[1]][index])
   }
 
   label <- sprintf(base, leftLabel, rightLabel)
@@ -263,17 +266,21 @@ violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title"
                        xlab = "-xlab <---> +xlab", ylab = "ylab",
                        showMean = TRUE, labelPairs = NULL){
 
+  #if no discrete variable is provided, put all into a single level called
+  # 'responses'
   if(is.null(discrete)){
     discrete <- rep("respones", NROW(continuous))
   }
 
+  #consolidate plot data into single df, and drop observations with NAs
   plotData <- data.frame(continuous, discrete)
   plotData <- na.omit(plotData)
 
 
-
+  #find levels which are present within the data (i.e. not dropped due to NA)
   presentLevels <- factor(plotData$discrete) %>%
     levels()
+  #assign y axis tick marks
   yAxisTicks <- unlist(labelPairs[presentLevels])
 
 
