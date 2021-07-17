@@ -68,6 +68,10 @@ isMarble <- function(qInd, qTitles){
   }
 }
 
+#' returns a logical indicating whether the specified signifier data represents a
+#' ternary type
+#' @param qInd:
+#' @param qTitles:
 isTernary <- function(qInd, qTitles){
   #get number of columns
   nCols <- qInd[2] - qInd[1]

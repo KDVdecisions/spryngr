@@ -1,3 +1,8 @@
+#'Build the continuous data file, an .xlsx file in which all continuous signifier
+#'data is stored, this file contains a sheet for each continuous signifier
+#'@param outline: The outline data.frame
+#'@param qData: All collection response data
+#'@param qTitles: Titles for each signifier
 #'
 buildContinuous <- function(qData, outline, qTitles){
   continuousData <- list()
@@ -26,8 +31,6 @@ buildContinuous <- function(qData, outline, qTitles){
       #add y column (just 1-x)
       thisQData$Y <- (1-thisQData$X)
       thisQData <- select(thisQData, "X", "Y", "IS_NA")
-
-      heyNow <- normalizeData(thisQData, -10, 0)
 
 
       continuousData <- append(continuousData, list(thisQData))

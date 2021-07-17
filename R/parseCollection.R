@@ -2,7 +2,8 @@
 #'
 #'@param inputFile: string containing path to spryng output file in csv
 parseCollection <- function(inputFile, outline = NULL){
-  if(!getWritePermission()){
+  if(!getWritePermission(positive = "Allow files to be written to drive",
+                         negative = "Deny")){
     cat("Exiting...\n")
 
   } else{

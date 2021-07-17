@@ -27,6 +27,12 @@ buildOutline <- function(qData, qInds, qTitles){
   return(outline)
 }
 
+#'addLabelFields() adds the DISCRETE_LABELS and CONTINUOUS_LABELS fields to the
+#'outline data.frame
+#'
+#'@param outline: The outline data.frame
+#'@param qData: All collection response data
+#'@param qTitles: Titles for each signifier
 addLabelFields <- function(outline, qData, qTitles){
   continuousLabels <- list()
   discreteLabels <- list()
@@ -64,35 +70,12 @@ addLabelFields <- function(outline, qData, qTitles){
 
 }
 
-
-# addLabelsField <- function(outline, qData, qTitles){
-#   LABELS <- list()
-#
-#
-#   for(i in 1:NROW(outline)){
-#     thisQ <- outline[i,]
-#     thisInd <- unlist(thisQ$COL_IND)
-#
-#     if(thisQ$CLASS == "slider"){
-#       thisLabels <- c("-X Label", "+X Label")
-#     } else if(thisQ$CLASS == "ternary"){
-#       thisLabels <- getTernaryLabels(thisInd, qTitles)
-#     } else if(thisQ$CLASS == "discrete"){
-#       thisLabels <- unlist(thisQ$LEVELS) %>%
-#         sort()
-#     } else if(thisQ$CLASS == "marble"){
-#       thisLabels <- c("-X Label", "+X Label" , "-Y Label", "+Y Label")
-#     } else{
-#       print("something unexpected happend in addLabelsField()")
-#     }
-#     LABELS[[i]] <- thisLabels
-#   }
-#   outline$LABELS <- LABELS
-#   return(outline)
-# }
-
-
-
+#'Determines the levels included for each discrete signifier and adds them for each
+#'response within the outline document under the LEVELS field
+#'
+#'@param outline: The outline data.frame
+#'@param qData: All collection response data
+#'@param qTitles: Titles for each signifier
 addLevelsField <- function(outline, qData, qTitles){
   LEVELS <- list()
   for(i in 1:NROW(outline)){
@@ -145,6 +128,12 @@ addLevelsField <- function(outline, qData, qTitles){
 
 }
 
+
+#' Adds a binary field within the ouline document which dictates whether a
+#' discrete signifier should be treated as an ordered or unordered factor
+#'@param outline: The outline data.frame
+#'@param qData: All collection response data
+#'@param qTitles: Titles for each signifier
 addOrderedField <- function(outline, qData, qTitles){
   ORDERED = c()
   for(i in 1:NROW(outline)){
@@ -158,6 +147,11 @@ addOrderedField <- function(outline, qData, qTitles){
   return(cbind(outline, ORDERED))
 }
 
+#'Adds the range scale field to the outline document which allows users to specify
+#'the range on which sliders and marble axis should operate
+#'@param outline: The outline data.frame
+#'@param qData: All collection response data
+#'@param qTitles: Titles for each signifier
 addScaleField <- function(outline, qData, qTitles){
   SCALE = c()
   for(i in 1:NROW(outline)){

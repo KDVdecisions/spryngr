@@ -1,5 +1,6 @@
-getWritePermission <- function(){
-  cat("This function needs to write to your drive, is this alright?\n1 Yes\n2 No")
+getWritePermission <- function(positive = "Yes", negative = "No"){
+  cat(sprintf("This function needs to write to your drive, is this alright?\n1 %s \n2 %s",
+              positive, negative))
   if(yesNoLoop()){
     return(TRUE)
   }
@@ -12,7 +13,7 @@ getWritePermission <- function(){
 
 getOutputFolder <- function(){
   cat(sprintf("By default the output folder is written to the working directory, which is currently set to:\n '%s'\n", getwd()))
-  cat("Would you like to specify a different location for the output folder?\n1 Yes\n2 No")
+  cat(sprintf("Would you like to specify a different location for the output folder?\n1 Specify another location\n2 Write to current working directory"))
   if(yesNoLoop()){
     return(choose.dir())
   }
@@ -23,7 +24,7 @@ getOutputFolder <- function(){
 }
 
 
-yesNoLoop <- function(){
+yesNoLoop <- function(positive, negative){
   for(i in 1:6){
     response=readline()
     if(response=="1"){
@@ -33,7 +34,7 @@ yesNoLoop <- function(){
       return(FALSE)
     }
     else{
-      cat("Please enter either a 1 (Yes) or a 2 (no)\n")
+      cat(sprintf("Please enter either a 1 (%s) or a 2 (%s)\n", positive, negative))
     }
     if(i == 5){
       return(FALSE)
