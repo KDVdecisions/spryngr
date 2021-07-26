@@ -71,7 +71,6 @@ getMarbleLabels <- function(qInd, qTitles){
 
 getTernaryLabels <- function(qInd, qTitles){
 
-
   labels <- qTitles[qInd[1]:(qInd[1]+2)] %>%
     sapply(function(x){
       str_split(x, " - ") %>%

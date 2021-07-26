@@ -70,6 +70,7 @@ generateXLabel <- function(thisOutline, index){
   return(label)
 }
 
+
 #'Formats discrete data, if n levels of a factor are present within a single
 #'observation, separated by commas, data will be split into n observations, each
 #'including only a single level.  The field 'ROW_ID' is then added which holds
@@ -114,6 +115,7 @@ formatDiscrete <- function(data, thisOutline){
     observations <- factor(x = observations)
   }
 
+
   return(data.frame(SET = observations, ROW_ID = indices))
 
 }
@@ -132,52 +134,6 @@ toList <- function(data){
   return(result)
 }
 
-#' Generates a violin plot
-#' @param continuous: a set of vector of continuous data
-#' @param discrete: a set of discrete data of equal length to continuous
-#' @param title: char, plot title
-#' @param xlab: char, x axis label
-#' @param ylab: char, y axis lable
-#' @param showMean: logical indicating whether to add points to violins representing
-#' mean value
-violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title",
-                       xlab = "-xlab <---> +xlab", ylab = "ylab",
-                       showMean = TRUE, labelPairs = NULL){
 
-  #if no discrete variable is provided, put all into a single level called
-  # 'responses'
-  if(is.null(discrete)){
-    discrete <- rep("respones", NROW(continuous))
-  }
-
-  #consolidate plot data into single df, and drop observations with NAs
-  plotData <- data.frame(continuous, discrete)
-  plotData <- na.omit(plotData)
-
-
-  #find levels which are present within the data (i.e. not dropped due to NA)
-  presentLevels <- factor(plotData$discrete) %>%
-    levels()
-  #assign y axis tick marks
-  yAxisTicks <- unlist(labelPairs[presentLevels])
-
-
-  p <- ggplot(data = plotData, mapping = aes(x = continuous, y = discrete, fill = discrete)) +
-    geom_violin() +
-    labs(title = title) +
-    xlab(xlab) +
-    ylab(ylab) +
-    scale_fill_manual(values = fill, breaks = levels(plotData$discrete)) +
-    scale_y_discrete(labels = yAxisTicks)
-
-  if(showMean){
-    p <- p + stat_summary(data = plotData, mapping = aes(x = continuous, y = discrete),
-                          fun = "mean", geom = "point", shape = 8, size = 4,
-                          color = "black")
-  }
-
-  return(p)
-
-}
 
 

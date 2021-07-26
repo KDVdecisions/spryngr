@@ -75,20 +75,13 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
   continuousData <- lapply(contSheetInds, function(x){
     data = read.xlsx(continuousPath, sheetIndex = x, check.names = FALSE) %>%
       select(-c(IS_NA))
-    #print(continuousOutline[x,])
+
     if(continuousOutline[continuousOutline$sheet == x,]$CLASS == "slider"){
       data = as.data.frame(data[,sliderAxes])
       names(data) = sliderAxes
     }
     return(data)
   })
-
-
-  # continuousData <- lapply(contSheetInds, function(x){
-  #   return(read.xlsx(continuousPath, sheetIndex = x, check.names = FALSE))
-  # })
-
-  print(continuousData)
 
   #read in subset of discrete data
   discreteData <- lapply(discSheetInds, function(x){
@@ -97,9 +90,6 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
 
     #if user didn't provide a subset of signifiers to use, read in all collection data
     #from continuous and discrete data files
-
-
-  #--------------------------------------
 
   #initialize fill container
   discreteFills <- list()
@@ -113,8 +103,11 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
     #Format discrete data
     discreteData[[i]] <- formatDiscrete(discreteData[[i]]$SET, discreteOutline[i,])
     #Generate a set of fills for each discrete question
+
     nLevels <- length(levels(discreteData[[i]]$SET))
+
     discreteFills[[i]] <- colorRampPalette(brewer.pal(8, palette))(nLevels)
+
 
     #Get list of labels to use for each discrete level within plots
     discreteLabPairs[[i]] <- generateDiscreteLabels(discreteOutline[i,])
@@ -145,6 +138,7 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
       #get all selected factors for this
       thisDiscrete <- discreteData[[j]]
 
+      print(thisDiscrete)
       #for each column in continuous data question
       for(k in 1:NCOL(thisContinuous)){
         #get x axis label
@@ -156,13 +150,6 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
                         showMean = showMean, labelPairs = discreteLabPairs[[j]])
 
         plots[[plotInd]] <- p
-
-        # if(plotInd == 19){
-        #   print(thisContinuous[thisDiscrete$ROW_ID, k])
-        #   print(thisDiscrete$SET)
-        #   print(discreteFills[[j]])
-        #   #print(p)
-        # }
 
         plotInd <- plotInd + 1
 
@@ -185,5 +172,61 @@ plotAllViolin <- function(outputFolder, showMean = TRUE, palette = NULL,
   } else{
     return(plots)
   }
+
+}
+
+#' Generates a violin plot
+#' @param continuous: a set of vector of continuous data
+#' @param discrete: a set of discrete data of equal length to continuous
+#' @param title: char, plot title
+#' @param xlab: char, x axis label
+#' @param ylab: char, y axis lable
+#' @param showMean: logical indicating whether to add points to violins representing
+#' mean value
+#' @param labelPairs: List with key-value structure.  Each key holds a level of
+#' the plots discrete factor, each value holds the corresponding label which should
+#' be used for the respective level within the plot
+violinPlot <- function(continuous, discrete = NULL, fill = NULL, title = "Title",
+                       xlab = "-xlab <---> +xlab", ylab = "ylab",
+                       showMean = TRUE, labelPairs = NULL){
+
+  print("from violinplot()")
+  print(discrete)
+
+ # print(fill)
+
+  #if no discrete variable is provided, put all into a single level called
+  # 'responses'
+  if(is.null(discrete)){
+    discrete <- rep("respones", NROW(continuous))
+  }
+
+  #consolidate plot data into single df, and drop observations with NAs
+  plotData <- data.frame(continuous, discrete)
+  plotData <- na.omit(plotData)
+
+
+  #find levels which are present within the data (i.e. not dropped due to NA)
+  presentLevels <- factor(plotData$discrete) %>%
+    levels()
+  #assign y axis tick marks
+  yAxisTicks <- unlist(labelPairs[presentLevels])
+
+
+  p <- ggplot(data = plotData, mapping = aes(x = continuous, y = discrete, fill = discrete)) +
+    geom_violin() +
+    labs(title = title) +
+    xlab(xlab) +
+    ylab(ylab) +
+    scale_fill_manual(values = fill, breaks = levels(plotData$discrete)) +
+    scale_y_discrete(labels = yAxisTicks)
+
+  if(showMean){
+    p <- p + stat_summary(data = plotData, mapping = aes(x = continuous, y = discrete),
+                          fun = "mean", geom = "point", shape = 8, size = 4,
+                          color = "black")
+  }
+
+  return(p)
 
 }
